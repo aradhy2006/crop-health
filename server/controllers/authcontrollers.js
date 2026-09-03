@@ -11,6 +11,7 @@ const register = async (req, res) => {
         }
 
         const user = await authService.registerUser(req.body);
+        
 
         return res.status(201).json({
             success: true,
@@ -28,6 +29,41 @@ const register = async (req, res) => {
     }
 };
 
+// login
+const login=async(req,res)=>{
+    try{
+    let {email,password}=req.body;
+     if (!email || !password) {
+            return res.status(400).json({
+                success: false,
+                message: "Email and password are required"
+            });
+        }
+    let result=await authService.login(email,password);
+    res.status(200).json({
+        success:true,
+        message:"Login successfull",
+        token:result.token,
+        user:result.user
+    });
+}
+catch(error){
+    res.status(400).json({
+        success:false,
+        message:error.message
+    });
+}
+
+};
+// protectes /me routes
+const getMe = async (req, res) => {
+    res.status(200).json({
+        success: true,
+        user: req.user
+    });
+}
 module.exports = {
-    register
+    register,
+    login,
+    getMe
 };
