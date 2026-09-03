@@ -4,19 +4,21 @@ const registerDevice = async (req, res) => {
     try {
         const {
             deviceId,
-            name
+            name,
+            farmId
         } = req.body;
 
-        if (!deviceId) {
+        if (!deviceId || !farmId) {
             return res.status(400).json({
                 success: false,
-                message: "deviceId is required"
+                message: "deviceId and farmId are required"
             });
         }
 
         const device = await deviceService.registerDevice({
             deviceId,
-            name
+            name,
+            farmId
         });
 
         return res.status(201).json({

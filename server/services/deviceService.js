@@ -1,4 +1,5 @@
 const Device = require("../models/device");
+const Farm = require("../models/farm");
 
 class DeviceService {
 
@@ -6,8 +7,15 @@ class DeviceService {
 
         const {
             deviceId,
-            name
+            name,
+            farmId
         } = deviceData;
+
+        const farm = await Farm.findById(farmId);
+
+        if (!farm) {
+            throw new Error("Farm not found");
+        }
 
         const existingDevice = await Device.findOne({ deviceId });
 
@@ -17,7 +25,8 @@ class DeviceService {
 
         const device = await Device.create({
             deviceId,
-            name
+            name,
+            farmId
         });
 
         return device;

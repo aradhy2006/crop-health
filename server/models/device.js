@@ -15,6 +15,12 @@ const deviceSchema = new mongoose.Schema(
             default: "ESP32 Device"
         },
 
+        farmId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Farm",
+            required: true
+        },
+
         status: {
             type: String,
             enum: ["online", "offline"],
