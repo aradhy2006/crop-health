@@ -1,7 +1,9 @@
 const express = require("express");
 
 const {
-    analyzeDisease
+    analyzeDisease,
+    getReportById,
+    getReportPage
 } = require("../controllers/diseasecontroller");
 
 const authMiddleware =
@@ -17,6 +19,18 @@ router.post(
     authMiddleware,
     upload.single("image"),
     analyzeDisease
+);
+
+// JSON API
+router.get(
+    "/reports/:reportId",
+    getReportById
+);
+
+// Human-readable public report page
+router.get(
+    "/report-page/:reportId",
+    getReportPage
 );
 
 module.exports = router;

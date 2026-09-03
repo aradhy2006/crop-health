@@ -1,4 +1,5 @@
 const DiseaseReport = require("../models/diseasereport");
+const QRCode = require("qrcode");
 
 class DiseaseDetectionService {
     async analyzeCrop({
@@ -29,6 +30,27 @@ class DiseaseDetectionService {
 
             sensorReadings
         });
+
+        // Public URL that the QR code will contain.
+        const reportUrl =
+    `http://192.168.0.130:5000/api/disease/report-page/${report._id}`;
+
+        // Generate QR code as a Data URL.
+        const qrCode = await QRCode.toDataURL(reportUrl);
+
+        // Save QR code into the report.
+        report.qrCode = qrCode;
+        await report.save();
+
+        return report;
+    }
+
+    async getReportById(reportId) {
+        const report = await DiseaseReport.findById(reportId);
+
+        if (!report) {
+            throw new Error("Disease report not found");
+        }
 
         return report;
     }
