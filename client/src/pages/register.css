@@ -1,0 +1,169 @@
+/* Page background and alignment */
+.register-page {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px 20px;
+    background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+    font-family: Arial, sans-serif;
+}
+
+/* Main registration card */
+.register-card {
+    width: 100%;
+    max-width: 450px;
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Heading */
+.register-card h1 {
+    text-align: center;
+    margin-bottom: 10px;
+    color: #2e7d32;
+    font-size: 32px;
+}
+
+/* Subtitle */
+.register-subtitle {
+    text-align: center;
+    color: #666;
+    margin-bottom: 30px;
+    font-size: 15px;
+}
+
+/* Form group */
+.form-group {
+    margin-bottom: 20px;
+}
+
+/* Labels */
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* Inputs */
+.form-group input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 13px 14px;
+    border: 1px solid #d0d0d0;
+    border-radius: 8px;
+    font-size: 15px;
+    outline: none;
+    transition: 0.2s ease;
+}
+
+/* Input focus */
+.form-group input:focus {
+    border-color: #43a047;
+    box-shadow: 0 0 0 3px rgba(67, 160, 71, 0.12);
+}
+
+/* Register button */
+.register-button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    background-color: #43a047;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+/* Button hover */
+.register-button:hover {
+    background-color: #2e7d32;
+}
+
+/* Button when disabled */
+.register-button:disabled {
+    background-color: #9e9e9e;
+    cursor: not-allowed;
+}
+
+/* Error message */
+.error-message {
+    margin-bottom: 15px;
+    padding: 10px 12px;
+    border-radius: 7px;
+    background-color: #ffebee;
+    color: #c62828;
+    font-size: 14px;
+}
+
+/* Success message */
+.success-message {
+    margin-bottom: 15px;
+    padding: 10px 12px;
+    border-radius: 7px;
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    font-size: 14px;
+}
+
+/* Login text */
+.login-text {
+    text-align: center;
+    margin-top: 22px;
+    color: #666;
+    font-size: 14px;
+}
+
+/* Login button */
+.login-link {
+    border: none;
+    background: none;
+    color: #2e7d32;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    font-size: 14px;
+}
+
+.login-link:hover {
+    text-decoration: underline;
+}
+
+/* Mobile */
+@media (max-width: 500px) {
+    .register-page {
+        padding: 20px 15px;
+    }
+
+    .register-card {
+        padding: 28px 22px;
+    }
+
+    .register-card h1 {
+        font-size: 27px;
+    }
+}
+.register-card,
+.register-card h1,
+.register-card p,
+.register-card label {
+    color: #000000;
+}
+
+.register-subtitle {
+    color: #333333;
+}
+
+.form-group input {
+    color: #000000;
+}
+
+.form-group input::placeholder {
+    color: #666666;
+}
