@@ -9,6 +9,12 @@ const deviceSchema = new mongoose.Schema(
             trim: true
         },
 
+        name: {
+            type: String,
+            trim: true,
+            default: "ESP32 Device"
+        },
+
         status: {
             type: String,
             enum: ["online", "offline"],
