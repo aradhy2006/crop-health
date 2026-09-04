@@ -1,252 +1,597 @@
 .disease-page {
     min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 30px 20px;
-    background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+    background: #f4f8f4;
     font-family: Arial, sans-serif;
+    padding: 40px 24px 60px;
 }
 
 .disease-card {
-    width: 100%;
-    max-width: 650px;
+    width: min(100%, 1050px);
+    margin: 0 auto;
+
     background: #ffffff;
-    padding: 40px;
+
+    border: 1px solid #dfe8e1;
     border-radius: 16px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-}
 
-.back-button {
-    border: none;
-    background: none;
-    color: #000000;
-    font-size: 14px;
-    cursor: pointer;
-    padding: 0;
-    margin-bottom: 25px;
-}
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.05);
 
-.disease-header {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-.disease-header h1 {
-    margin-bottom: 10px;
-    color: #2e7d32;
-    font-size: 30px;
-}
-
-.disease-header p {
-    color: #333333;
-    line-height: 1.5;
-    margin: 0;
-}
-
-.disease-form-group {
-    margin-bottom: 25px;
-}
-
-.disease-form-group label {
-    display: block;
-    color: #000000;
-    font-weight: 600;
-    margin-bottom: 8px;
-}
-
-.disease-form-group select {
-    width: 100%;
-    padding: 13px 14px;
-    box-sizing: border-box;
-    border: 1px solid #cfcfcf;
-    border-radius: 8px;
-    background: #ffffff;
-    color: #000000;
-    font-size: 15px;
-    outline: none;
-}
-
-.disease-form-group select:focus {
-    border-color: #43a047;
-    box-shadow: 0 0 0 3px rgba(67, 160, 71, 0.12);
-}
-
-.upload-section {
-    margin-bottom: 25px;
-}
-
-.upload-box {
-    min-height: 280px;
-    border: 2px dashed #81c784;
-    border-radius: 12px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    padding: 20px;
-    box-sizing: border-box;
-    text-align: center;
-    transition: 0.2s ease;
     overflow: hidden;
 }
 
-.upload-box:hover {
-    background: #f8fff8;
-    border-color: #43a047;
+/* =========================================================
+   Header
+   ========================================================= */
+
+.disease-header {
+    padding: 32px 42px 28px;
+
+    border-bottom: 1px solid #e5ebe6;
+
+    text-align: center;
 }
 
-.upload-icon {
-    font-size: 50px;
-    margin-bottom: 10px;
+.disease-header h1 {
+    margin: 0 0 9px;
+
+    color: #1f5132;
+
+    font-size: 30px;
+    line-height: 1.25;
 }
 
-.upload-box h3 {
-    color: #000000;
-    margin: 8px 0;
+.disease-header p {
+    max-width: 680px;
+
+    margin: 0 auto;
+
+    color: #66736a;
+
+    font-size: 15px;
+    line-height: 1.6;
 }
 
-.upload-box p {
-    color: #333333;
-    margin: 5px 0;
-}
+/* =========================================================
+   Back Button
+   ========================================================= */
 
-.upload-box span {
-    color: #777777;
-    font-size: 13px;
-    margin-top: 5px;
-}
+.disease-card > .back-button {
+    display: block;
 
-.image-preview {
-    width: 100%;
-    max-height: 350px;
-    object-fit: contain;
-    border-radius: 8px;
-}
+    margin: 22px 42px 0;
 
-.analyze-button {
-    width: 100%;
-    padding: 14px;
     border: none;
-    border-radius: 8px;
-    background: #43a047;
-    color: #ffffff;
-    font-size: 16px;
+    background: transparent;
+
+    color: #2e7d32;
+
+    font-family: inherit;
+    font-size: 14px;
     font-weight: 600;
+
     cursor: pointer;
 }
 
-.analyze-button:hover {
-    background: #2e7d32;
+.disease-card > .back-button:hover {
+    text-decoration: underline;
 }
 
-.detection-note {
-    margin-top: 25px;
-    padding: 13px;
-    background: #f5f5f5;
+/* =========================================================
+   Error
+   ========================================================= */
+
+.disease-error {
+    margin: 22px 42px 0;
+
+    padding: 12px 14px;
+
+    border: 1px solid #f0cccc;
     border-radius: 8px;
-    color: #333333;
-    font-size: 13px;
+
+    background: #fff1f1;
+    color: #b42318;
+
+    font-size: 14px;
     line-height: 1.5;
 }
 
-@media (max-width: 600px) {
-    .disease-card {
-        padding: 28px 20px;
-    }
+/* =========================================================
+   Selected Farm
+   ========================================================= */
 
-    .disease-header h1 {
-        font-size: 25px;
-    }
+.farm-preview {
+    margin: 28px 42px 26px;
 
-    .upload-box {
-        min-height: 230px;
-    }
+    padding: 20px 22px;
+
+    border: 1px solid #dce8df;
+    border-radius: 11px;
+
+    background: #f5f9f6;
 }
-.disease-error {
-    margin-bottom: 20px;
-    padding: 12px;
-    border-radius: 8px;
-    background: #ffebee;
-    color: #c62828;
+
+.farm-preview h3 {
+    margin: 0 0 15px;
+
+    color: #1f5132;
+
+    font-size: 17px;
+}
+
+.farm-preview p {
+    display: inline-block;
+
+    margin: 5px 28px 5px 0;
+
+    color: #465249;
+
     font-size: 14px;
+    line-height: 1.6;
+}
+
+.farm-preview strong {
+    color: #29352d;
+}
+
+/* =========================================================
+   Form
+   ========================================================= */
+
+.disease-card form {
+    padding-bottom: 36px;
+}
+
+/* Section title before sensor inputs */
+
+.disease-card form::before {
+    content: "Environmental Conditions";
+
+    display: block;
+
+    margin: 0 42px 18px;
+    padding-bottom: 10px;
+
+    border-bottom: 1px solid #e5ebe6;
+
+    color: #237a36;
+
+    font-size: 17px;
+    font-weight: 700;
 }
 
 .sensor-input-grid {
     display: grid;
+
     grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
+
+    gap: 18px;
+
+    margin: 0 42px;
 }
 
-.sensor-input-grid input {
+.disease-form-group {
+    margin-bottom: 8px;
+}
+
+.disease-form-group label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: #27332b;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.disease-form-group input,
+.disease-form-group select {
     width: 100%;
+
     box-sizing: border-box;
-    padding: 13px;
-    border: 1px solid #cfcfcf;
+
+    padding: 13px 14px;
+
+    border: 1px solid #cfd8d2;
     border-radius: 8px;
-    color: #000000;
+
     background: #ffffff;
+    color: #1f2937;
+
+    font-family: inherit;
+    font-size: 15px;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
 }
 
-.result-section h2 {
-    color: #2e7d32;
-    margin-bottom: 20px;
+.disease-form-group input:hover,
+.disease-form-group select:hover {
+    border-color: #aebdb2;
 }
+
+.disease-form-group input:focus,
+.disease-form-group select:focus {
+    border-color: #43a047;
+
+    background: #fbfefb;
+
+    box-shadow: 0 0 0 3px rgba(67, 160, 71, 0.12);
+}
+
+.disease-form-group input::placeholder {
+    color: #7b847e;
+}
+
+.sensor-note {
+    margin: 8px 42px 28px;
+
+    color: #6b756e;
+
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* =========================================================
+   Upload Section
+   ========================================================= */
+
+.upload-section {
+    margin: 0 42px 25px;
+}
+
+.upload-section::before {
+    content: "Crop Image";
+
+    display: block;
+
+    margin-bottom: 13px;
+
+    color: #237a36;
+
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.upload-box {
+    min-height: 300px;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 25px;
+
+    box-sizing: border-box;
+
+    border: 2px dashed #9bc6a1;
+    border-radius: 12px;
+
+    background: #fbfdfb;
+
+    text-align: center;
+
+    cursor: pointer;
+
+    overflow: hidden;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.upload-box:hover {
+    background: #f5fbf6;
+    border-color: #43a047;
+}
+
+.upload-icon {
+    width: 64px;
+    height: 64px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 13px;
+
+    border-radius: 50%;
+
+    background: #edf7ef;
+
+    font-size: 30px;
+}
+
+.upload-box h3 {
+    margin: 5px 0 7px;
+
+    color: #27332b;
+
+    font-size: 18px;
+}
+
+.upload-box p {
+    margin: 4px 0;
+
+    color: #68736c;
+
+    font-size: 14px;
+}
+
+.upload-box span {
+    margin-top: 5px;
+
+    color: #89918c;
+
+    font-size: 12px;
+}
+
+.image-preview {
+    width: 100%;
+    max-height: 360px;
+
+    object-fit: contain;
+
+    border-radius: 9px;
+}
+
+/* =========================================================
+   Analyze Button
+   ========================================================= */
+
+.analyze-button {
+    display: block;
+
+    width: calc(100% - 84px);
+
+    margin: 0 42px;
+
+    padding: 14px 20px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #43a047;
+    color: #ffffff;
+
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+.analyze-button:hover {
+    background: #2e7d32;
+    transform: translateY(-1px);
+}
+
+.analyze-button:disabled {
+    background: #9eaaa0;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* =========================================================
+   Result Section
+   ========================================================= */
+
+.result-section {
+    padding: 30px 42px 38px;
+}
+
+.result-section > h2 {
+    margin: 0 0 24px;
+
+    color: #1f5132;
+
+    font-size: 25px;
+}
+
+/* Result image */
 
 .result-image {
-    text-align: center;
+    display: flex;
+    justify-content: center;
+
     margin-bottom: 25px;
 }
 
 .result-image img {
+    width: auto;
     max-width: 100%;
-    max-height: 300px;
-    border-radius: 10px;
+    max-height: 360px;
+
+    border-radius: 12px;
+
+    border: 1px solid #dce8df;
+
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.07);
 }
 
+/* Main result */
+
 .result-main {
-    padding: 18px;
-    background: #f5f8f5;
-    border-radius: 10px;
-    margin-bottom: 20px;
+    display: grid;
+
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 0;
+
+    margin-bottom: 22px;
+
+    padding: 0;
+
+    border: 1px solid #dce8df;
+    border-radius: 11px;
+
+    background: #f8fbf8;
+
+    overflow: hidden;
 }
 
 .result-main p {
-    color: #000000;
-    margin: 10px 0;
+    margin: 0;
+
+    padding: 16px 18px;
+
+    border-bottom: 1px solid #e1e9e3;
+
+    color: #37423a;
+
+    font-size: 14px;
+    line-height: 1.6;
 }
 
+.result-main p:nth-child(odd) {
+    border-right: 1px solid #e1e9e3;
+}
+
+.result-main p:nth-last-child(-n + 2) {
+    border-bottom: none;
+}
+
+.result-main strong {
+    color: #243029;
+}
+
+/* =========================================================
+   Report Blocks
+   ========================================================= */
+
 .report-block {
-    padding: 18px 0;
-    border-bottom: 1px solid #e5e5e5;
+    padding: 21px 0;
+
+    border-bottom: 1px solid #e5ebe6;
 }
 
 .report-block h3 {
-    color: #2e7d32;
-    margin-bottom: 8px;
+    margin: 0 0 9px;
+
+    color: #237a36;
+
+    font-size: 18px;
 }
 
 .report-block p,
 .report-block li {
-    color: #000000;
-    line-height: 1.6;
+    color: #465249;
+
+    font-size: 14px;
+    line-height: 1.75;
+}
+
+.report-block p {
+    margin: 0;
+}
+
+.report-block ul {
+    margin: 8px 0 0;
+    padding-left: 21px;
+}
+
+.report-block li {
+    margin-bottom: 7px;
+}
+
+/* =========================================================
+   Sensor Results
+   ========================================================= */
+
+.sensor-results {
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 12px;
+
+    margin-top: 13px;
 }
 
 .sensor-results p {
-    color: #000000;
-    margin: 8px 0;
+    margin: 0;
+
+    padding: 14px;
+
+    border: 1px solid #e0e8e1;
+    border-radius: 9px;
+
+    background: #f8fbf8;
 }
+
+.sensor-results strong {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: #657068;
+
+    font-size: 12px;
+}
+
+/* =========================================================
+   QR
+   ========================================================= */
+
+.qr-section {
+    text-align: center;
+
+    border-bottom: none;
+}
+
+.qr-section h3 {
+    margin-bottom: 8px;
+}
+
+.qr-section p {
+    color: #68736c;
+}
+
+.qr-section .qr-code {
+    width: 180px;
+    height: 180px;
+
+    margin-top: 13px;
+
+    padding: 8px;
+
+    border: 1px solid #dce8df;
+    border-radius: 10px;
+
+    background: #ffffff;
+}
+
+/* =========================================================
+   New Analysis
+   ========================================================= */
 
 .new-analysis-button {
     width: 100%;
-    margin-top: 25px;
-    padding: 13px;
+
+    margin-top: 28px;
+
+    padding: 13px 20px;
+
     border: none;
     border-radius: 8px;
+
     background: #43a047;
-    color: white;
+    color: #ffffff;
+
+    font-family: inherit;
+    font-size: 15px;
     font-weight: 600;
+
     cursor: pointer;
 }
 
@@ -254,8 +599,115 @@
     background: #2e7d32;
 }
 
-@media (max-width: 700px) {
+/* =========================================================
+   Responsive
+   ========================================================= */
+
+@media (max-width: 800px) {
+
+    .disease-page {
+        padding: 24px 15px 40px;
+    }
+
+    .disease-card {
+        width: 100%;
+    }
+
+    .disease-header {
+        padding: 28px 22px 24px;
+    }
+
+    .disease-header h1 {
+        font-size: 26px;
+    }
+
+    .disease-card > .back-button {
+        margin-left: 22px;
+        margin-right: 22px;
+    }
+
+    .disease-error {
+        margin-left: 22px;
+        margin-right: 22px;
+    }
+
+    .farm-preview {
+        margin-left: 22px;
+        margin-right: 22px;
+    }
+
+    .disease-card form::before {
+        margin-left: 22px;
+        margin-right: 22px;
+    }
+
     .sensor-input-grid {
         grid-template-columns: 1fr;
+
+        margin-left: 22px;
+        margin-right: 22px;
+    }
+
+    .sensor-note {
+        margin-left: 22px;
+        margin-right: 22px;
+    }
+
+    .upload-section {
+        margin-left: 22px;
+        margin-right: 22px;
+    }
+
+    .analyze-button {
+        width: calc(100% - 44px);
+        margin-left: 22px;
+        margin-right: 22px;
+    }
+
+    .result-section {
+        padding-left: 22px;
+        padding-right: 22px;
+    }
+
+    .result-main {
+        grid-template-columns: 1fr;
+    }
+
+    .result-main p:nth-child(odd) {
+        border-right: none;
+    }
+
+    .result-main p {
+        border-bottom: 1px solid #e1e9e3;
+    }
+
+    .result-main p:last-child {
+        border-bottom: none;
+    }
+
+    .sensor-results {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 550px) {
+
+    .farm-preview p {
+        display: block;
+
+        margin-right: 0;
+    }
+
+    .upload-box {
+        min-height: 240px;
+    }
+
+    .result-section > h2 {
+        font-size: 22px;
+    }
+
+    .featured-report-title {
+        flex-direction: column;
+        align-items: flex-start;
     }
 }

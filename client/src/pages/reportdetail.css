@@ -1,153 +1,1038 @@
 .report-detail-page {
     min-height: 100vh;
-    padding: 30px 20px;
-    background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
-    font-family: Arial, sans-serif;
-    box-sizing: border-box;
+
+    background: #f5f8f5;
+
+    font-family:
+        Inter,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    color: #1f2937;
+
+    padding-bottom: 60px;
 }
 
-.report-detail-card {
-    width: 100%;
-    max-width: 900px;
-    margin: 0 auto;
-    background: #ffffff;
-    padding: 40px;
-    border-radius: 16px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    box-sizing: border-box;
+.report-detail-container {
+    width: min(100% - 48px, 1400px);
+
+    margin: 20px auto 0;
 }
 
-.report-detail-back-button {
+/* =========================================================
+   Back
+   ========================================================= */
+
+.report-detail-back {
     border: none;
-    background: none;
+    background: transparent;
+
+    padding: 8px 0;
+
     color: #2e7d32;
+
+    font-family: inherit;
     font-size: 14px;
     font-weight: 600;
+
     cursor: pointer;
-    padding: 0;
-    margin-bottom: 25px;
 }
 
+.report-detail-back:hover {
+    text-decoration: underline;
+}
+
+/* =========================================================
+   Header
+   ========================================================= */
+
 .report-detail-header {
-    text-align: center;
-    margin-bottom: 30px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    padding: 20px 0 24px;
+}
+
+.report-detail-eyebrow {
+    margin: 0 0 7px;
+
+    color: #68766d;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    letter-spacing: 0.5px;
 }
 
 .report-detail-header h1 {
-    margin: 0 0 10px;
-    color: #2e7d32;
-    font-size: 30px;
+    margin: 0 0 7px;
+
+    color: #182534;
+
+    font-size: 31px;
+    line-height: 1.2;
 }
 
 .report-detail-header p {
     margin: 0;
-    color: #555555;
-}
 
-.report-detail-image {
-    text-align: center;
-    margin-bottom: 25px;
-}
+    color: #69756d;
 
-.report-detail-image img {
-    max-width: 100%;
-    max-height: 400px;
-    border-radius: 12px;
-    object-fit: contain;
-}
-
-.report-detail-summary {
-    padding: 20px;
-    background: #f5f8f5;
-    border-radius: 10px;
-    margin-bottom: 20px;
-}
-
-.report-detail-summary h2 {
-    margin: 0 0 15px;
-    color: #2e7d32;
-    font-size: 24px;
-}
-
-.report-detail-summary p {
-    margin: 9px 0;
-    color: #333333;
-}
-
-.report-detail-block {
-    padding: 20px 0;
-    border-bottom: 1px solid #e5e5e5;
-}
-
-.report-detail-block h3 {
-    margin: 0 0 10px;
-    color: #2e7d32;
-}
-
-.report-detail-block p,
-.report-detail-block li {
-    color: #333333;
-    line-height: 1.6;
-}
-
-.report-detail-block ul {
-    padding-left: 22px;
-}
-
-.report-detail-qr {
-    text-align: center;
-    padding-top: 25px;
-}
-
-.report-detail-qr h3 {
-    color: #2e7d32;
-    margin-bottom: 10px;
-}
-
-.report-detail-qr p {
-    color: #555555;
+    font-size: 15px;
     line-height: 1.5;
 }
 
-.report-detail-qr-image {
-    width: 220px;
-    height: 220px;
-    margin-top: 10px;
+.report-generated {
+    text-align: right;
 }
 
-.report-detail-message {
-    text-align: center;
-    color: #555555;
+.report-generated span {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: #7a847d;
+
+    font-size: 12px;
+}
+
+.report-generated strong {
+    color: #4e5b52;
+
+    font-size: 13px;
+}
+
+/* =========================================================
+   Main Summary
+   ========================================================= */
+
+.report-summary-grid {
+    display: grid;
+
+    grid-template-columns: 1.05fr 1.35fr 0.85fr;
+
+    gap: 14px;
+}
+
+.analysis-image-card,
+.disease-summary-card,
+.risk-summary-card,
+.confidence-summary-card {
+    border: 1px solid #dfe8e1;
+    border-radius: 12px;
+
+    background: #ffffff;
+
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.035);
+}
+
+.analysis-image-card {
+    position: relative;
+
+    min-height: 275px;
+
+    overflow: hidden;
+
+    background: #e9f0e8;
+}
+
+.analysis-image-card img {
+    width: 100%;
+    height: 100%;
+
+    min-height: 275px;
+
+    display: block;
+
+    object-fit: cover;
+}
+
+.analysis-image-label {
+    position: absolute;
+
+    left: 14px;
+    bottom: 14px;
+
+    padding: 7px 11px;
+
+    border-radius: 20px;
+
+    background: rgba(255, 255, 255, 0.92);
+
+    color: #354238;
+
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.disease-summary-card {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 17px;
+
     padding: 30px;
+
+    background: linear-gradient(
+        135deg,
+        #edf9ef,
+        #f4fbf5
+    );
+
+    border-color: #d5e9d8;
 }
 
-.report-detail-error {
-    padding: 15px;
+.summary-icon {
+    width: 58px;
+    height: 58px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #d9f0dd;
+
+    font-size: 30px;
+}
+
+.summary-content > span {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #415247;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.summary-content h2 {
+    margin: 0 0 20px;
+
+    color: #162331;
+
+    font-size: 30px;
+    line-height: 1.15;
+}
+
+.summary-content p {
+    margin: 8px 0;
+
+    color: #526057;
+
+    font-size: 14px;
+}
+
+.summary-content strong {
+    color: #314036;
+}
+
+.summary-side {
+    display: flex;
+    flex-direction: column;
+
+    gap: 14px;
+}
+
+.risk-summary-card {
+    min-height: 110px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    padding: 20px;
+}
+
+.risk-summary-card > span {
+    margin-bottom: 6px;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.risk-summary-card strong {
+    margin-bottom: 5px;
+
+    font-size: 20px;
+}
+
+.risk-summary-card small {
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.detail-risk-high {
+    border-color: #f2cccc;
+
+    background: #fff1f1;
+
+    color: #a92020;
+}
+
+.detail-risk-medium {
+    border-color: #f0dfbd;
+
+    background: #fff8eb;
+
+    color: #9a6209;
+}
+
+.detail-risk-low {
+    border-color: #d3e8d6;
+
+    background: #eff9f0;
+
+    color: #287638;
+}
+
+.confidence-summary-card {
+    padding: 19px;
+}
+
+.confidence-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 12px;
+}
+
+.confidence-heading span {
+    color: #66736a;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.confidence-heading strong {
+    color: #1d2935;
+
+    font-size: 22px;
+}
+
+.confidence-bar {
+    width: 100%;
+    height: 9px;
+
+    overflow: hidden;
+
+    border-radius: 20px;
+
+    background: #e9efea;
+}
+
+.confidence-bar div {
+    height: 100%;
+
+    border-radius: inherit;
+
+    background: #2d9b3e;
+}
+
+/* =========================================================
+   Sensor + Analysis
+   ========================================================= */
+
+.report-information-grid {
+    display: grid;
+
+    grid-template-columns: 2fr 1fr;
+
+    gap: 14px;
+
+    margin-top: 14px;
+}
+
+.sensor-panel,
+.analysis-details-panel {
+    padding: 21px;
+
+    border: 1px solid #dfe8e1;
+    border-radius: 12px;
+
+    background: #ffffff;
+
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
+}
+
+.sensor-panel {
+    background: linear-gradient(
+        135deg,
+        #f0f9f1,
+        #f7fbf7
+    );
+}
+
+.panel-heading {
+    display: flex;
+    align-items: center;
+
+    gap: 11px;
+
+    margin-bottom: 17px;
+}
+
+.panel-heading-icon {
+    width: 35px;
+    height: 35px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 9px;
+
+    background: #e1f2e3;
+
+    color: #2d8a3b;
+
+    font-size: 18px;
+}
+
+.panel-heading h2 {
+    margin: 0;
+
+    color: #26332b;
+
+    font-size: 17px;
+}
+
+.panel-heading p {
+    margin: 2px 0 0;
+
+    color: #7a857d;
+
+    font-size: 11px;
+}
+
+.sensor-card-grid {
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 12px;
+}
+
+.detail-sensor-card {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 16px;
+
+    border: 1px solid #e2ebe3;
+    border-radius: 9px;
+
+    background: #ffffff;
+}
+
+.sensor-card-icon {
+    font-size: 23px;
+}
+
+.detail-sensor-card span:not(.sensor-card-icon) {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: #69756d;
+
+    font-size: 11px;
+}
+
+.detail-sensor-card strong {
+    color: #202d25;
+
+    font-size: 17px;
+}
+
+.analysis-detail-list {
+    display: grid;
+
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 15px;
+}
+
+.analysis-detail-list > div {
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 9px;
+}
+
+.analysis-detail-list > div > span {
+    color: #328d40;
+
+    font-size: 17px;
+}
+
+.analysis-detail-list p {
+    margin: 0;
+}
+
+.analysis-detail-list small {
+    display: block;
+
+    margin-bottom: 3px;
+
+    color: #7b857e;
+
+    font-size: 10px;
+}
+
+.analysis-detail-list strong {
+    color: #344139;
+
+    font-size: 12px;
+}
+
+/* =========================================================
+   Content Cards
+   ========================================================= */
+
+.report-content-grid {
+    display: grid;
+
+    gap: 14px;
+
+    margin-top: 14px;
+}
+
+.two-column {
+    grid-template-columns: 1fr 1fr;
+}
+
+.three-column {
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.report-content-card {
+    min-height: 150px;
+
+    padding: 21px;
+
+    border: 1px solid #dfe8e1;
+    border-radius: 12px;
+
+    background: #ffffff;
+}
+
+.about-disease {
+    background: #fffaf0;
+    border-color: #f0e2bd;
+}
+
+.why-disease {
+    background: #fff3f3;
+    border-color: #f0d4d4;
+}
+
+.spread-card {
+    background: #f1f7fd;
+    border-color: #d7e5f3;
+}
+
+.solution-card,
+.prevention-card {
+    background: #f0faf1;
+    border-color: #d7ead9;
+}
+
+.content-card-heading {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    margin-bottom: 13px;
+}
+
+.content-card-heading span {
+    width: 29px;
+    height: 29px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
     border-radius: 8px;
-    background: #ffebee;
-    color: #c62828;
+
+    background: rgba(50, 130, 62, 0.1);
+
+    color: #2d8639;
+
+    font-size: 14px;
+}
+
+.why-disease .content-card-heading span {
+    color: #c13737;
+    background: #fde5e5;
+}
+
+.spread-card .content-card-heading span {
+    color: #2f6d9e;
+    background: #e1effc;
+}
+
+.content-card-heading h2 {
+    margin: 0;
+
+    color: #24312a;
+
+    font-size: 17px;
+}
+
+.report-content-card p {
+    margin: 0;
+
+    color: #536058;
+
+    font-size: 13px;
+
+    line-height: 1.7;
+}
+
+.report-content-card ul {
+    margin: 0;
+
+    padding-left: 19px;
+}
+
+.report-content-card li {
+    margin-bottom: 6px;
+
+    color: #536058;
+
+    font-size: 13px;
+
+    line-height: 1.55;
+}
+
+/* =========================================================
+   Bottom
+   ========================================================= */
+
+.bottom-report-grid {
+    display: grid;
+
+    grid-template-columns: 1.7fr 1fr;
+
+    gap: 14px;
+
+    margin-top: 14px;
+}
+
+.recommendation-card,
+.qr-report-card {
+    border: 1px solid #d8e8da;
+    border-radius: 12px;
+
+    background: #ffffff;
+
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
+}
+
+.recommendation-card {
+    display: flex;
+
+    gap: 17px;
+
+    padding: 24px;
+
+    background: linear-gradient(
+        135deg,
+        #eef9ef,
+        #f8fcf8
+    );
+}
+
+.recommendation-icon {
+    width: 48px;
+    height: 48px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #d9f0dc;
+
+    font-size: 25px;
+}
+
+.recommendation-card h2 {
+    margin: 2px 0 10px;
+
+    color: #215f2c;
+
+    font-size: 18px;
+}
+
+.recommendation-card p {
+    margin: 6px 0;
+
+    color: #58655d;
+
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.recommendation-quote {
+    margin-top: 14px;
+
+    padding: 9px 15px;
+
+    border-radius: 8px;
+
+    background: #d9f1dc;
+
+    color: #276a31;
+
+    font-size: 14px;
+    font-style: italic;
+    font-weight: 600;
+
     text-align: center;
 }
 
-@media (max-width: 600px) {
-    .report-detail-page {
-        padding: 20px 12px;
+.qr-report-card {
+    padding: 20px;
+}
+
+.qr-report-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+}
+
+.qr-heading {
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 10px;
+}
+
+.qr-heading > span {
+    color: #263c2c;
+
+    font-size: 23px;
+}
+
+.qr-heading h2 {
+    margin: 0 0 6px;
+
+    color: #26332b;
+
+    font-size: 16px;
+}
+
+.qr-heading p {
+    max-width: 190px;
+
+    margin: 0;
+
+    color: #69756d;
+
+    font-size: 11px;
+
+    line-height: 1.5;
+}
+
+.detail-qr-code {
+    width: 105px;
+    height: 105px;
+
+    padding: 5px;
+
+    border: 1px solid #dce5de;
+    border-radius: 6px;
+
+    background: #ffffff;
+}
+
+.qr-unavailable {
+    width: 105px;
+    height: 105px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid #dce5de;
+    border-radius: 6px;
+
+    color: #89938c;
+
+    font-size: 11px;
+}
+
+.report-id {
+    margin: 13px 0 0;
+
+    color: #7b857e;
+
+    font-size: 10px;
+
+    text-align: right;
+}
+
+/* =========================================================
+   Actions
+   ========================================================= */
+
+.report-actions {
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    margin-top: 20px;
+}
+
+.secondary-report-button,
+.primary-report-button {
+    padding: 11px 18px;
+
+    border-radius: 8px;
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.secondary-report-button {
+    border: 1px solid #d2ddd4;
+
+    background: #ffffff;
+    color: #35613d;
+}
+
+.primary-report-button {
+    border: none;
+
+    background: #299638;
+    color: #ffffff;
+}
+
+.primary-report-button:hover {
+    background: #227e30;
+}
+
+/* =========================================================
+   Loading / Error
+   ========================================================= */
+
+.report-detail-state {
+    margin-top: 40px;
+
+    padding: 70px 30px;
+
+    border: 1px solid #dfe8e1;
+    border-radius: 12px;
+
+    background: #ffffff;
+
+    text-align: center;
+}
+
+.report-state-icon {
+    width: 58px;
+    height: 58px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin: 0 auto 15px;
+
+    border-radius: 50%;
+
+    background: #edf7ef;
+    color: #2e873b;
+
+    font-size: 25px;
+    font-weight: 700;
+}
+
+.report-detail-state h2 {
+    margin: 0 0 8px;
+
+    color: #26332b;
+
+    font-size: 21px;
+}
+
+.report-detail-state p {
+    margin: 0 auto;
+
+    max-width: 500px;
+
+    color: #69756d;
+
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.report-detail-error .report-state-icon {
+    background: #fff0f0;
+    color: #c62828;
+}
+
+.return-reports-button {
+    margin-top: 20px;
+
+    padding: 11px 19px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #299638;
+    color: #ffffff;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+/* =========================================================
+   Responsive
+   ========================================================= */
+
+@media (max-width: 1100px) {
+    .report-summary-grid {
+        grid-template-columns: 1fr 1fr;
     }
 
-    .report-detail-card {
-        padding: 28px 20px;
+    .analysis-image-card {
+        min-height: 300px;
+    }
+
+    .analysis-image-card img {
+        min-height: 300px;
+    }
+
+    .summary-side {
+        grid-column: 1 / -1;
+
+        display: grid;
+
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .report-information-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .three-column {
+        grid-template-columns: 1fr;
+    }
+
+    .bottom-report-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 750px) {
+    .report-detail-container {
+        width: min(100% - 30px, 1400px);
+    }
+
+    .report-detail-header {
+        display: block;
     }
 
     .report-detail-header h1 {
+        font-size: 27px;
+    }
+
+    .report-generated {
+        margin-top: 12px;
+
+        text-align: left;
+    }
+
+    .report-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .summary-side {
+        grid-column: auto;
+
+        grid-template-columns: 1fr;
+    }
+
+    .disease-summary-card {
+        padding: 22px;
+    }
+
+    .summary-content h2 {
         font-size: 25px;
     }
 
-    .report-detail-image img {
-        max-height: 300px;
+    .two-column {
+        grid-template-columns: 1fr;
     }
 
-    .report-detail-qr-image {
-        width: 180px;
-        height: 180px;
+    .sensor-card-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .analysis-detail-list {
+        grid-template-columns: 1fr;
+    }
+
+    .report-actions {
+        flex-direction: column;
+    }
+
+    .secondary-report-button,
+    .primary-report-button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 500px) {
+    .report-detail-page {
+        padding-bottom: 35px;
+    }
+
+    .analysis-image-card,
+    .analysis-image-card img {
+        min-height: 240px;
+    }
+
+    .report-content-card,
+    .sensor-panel,
+    .analysis-details-panel {
+        padding: 17px;
+    }
+
+    .qr-report-content {
+        align-items: flex-start;
+    }
+
+    .detail-qr-code {
+        width: 90px;
+        height: 90px;
     }
 }

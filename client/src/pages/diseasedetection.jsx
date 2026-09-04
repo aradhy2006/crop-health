@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import diseaseService from "../services/diseaseservice";
 import farmService from "../services/farmservice";
 import sensorService from "../services/sensorservice";
+import Navbar from "../components/Navbar";
 
 import "./diseasedetection.css";
 
@@ -176,14 +177,10 @@ function DiseaseDetection() {
 
     return (
         <div className="disease-page">
-            <div className="disease-card">
 
-                <button
-                    className="back-button"
-                    onClick={() => navigate("/dashboard")}
-                >
-                    ← Back to Dashboard
-                </button>
+            <Navbar />
+
+            <div className="disease-card">
 
                 <div className="disease-header">
 

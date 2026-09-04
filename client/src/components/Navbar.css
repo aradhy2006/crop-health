@@ -1,0 +1,161 @@
+.app-navbar {
+    width: 100%;
+    min-height: 72px;
+    padding: 0 5%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px;
+
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8e4;
+
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.app-navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.app-navbar-logo {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #edf7ef;
+    border-radius: 9px;
+
+    font-size: 21px;
+}
+
+.app-navbar-title {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.app-navbar-title strong {
+    color: #1f2937;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.app-navbar-title span {
+    margin-top: 3px;
+    color: #6b7280;
+    font-size: 11px;
+}
+
+.app-navbar-links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    flex: 1;
+}
+
+.app-navbar-links button {
+    border: none;
+    background: transparent;
+
+    padding: 9px 14px;
+    border-radius: 7px;
+
+    color: #4b5563;
+    font-size: 14px;
+    font-weight: 500;
+
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.app-navbar-links button:hover {
+    background: #f1f5f2;
+    color: #1f5132;
+}
+
+.app-navbar-links button.active {
+    background: #edf7ef;
+    color: #1f6b3a;
+    font-weight: 600;
+}
+
+.app-navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+}
+
+.app-navbar-user {
+    color: #4b5563;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.app-navbar-logout {
+    border: 1px solid #d6ddd8;
+    background: #ffffff;
+
+    padding: 8px 14px;
+    border-radius: 7px;
+
+    color: #374151;
+    font-size: 13px;
+    font-weight: 500;
+
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.app-navbar-logout:hover {
+    background: #f5f7f4;
+    border-color: #bfc9c2;
+}
+
+@media (max-width: 900px) {
+    .app-navbar {
+        padding: 12px 20px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .app-navbar-links {
+        order: 3;
+        width: 100%;
+        flex-basis: 100%;
+        overflow-x: auto;
+        justify-content: flex-start;
+        padding-bottom: 2px;
+    }
+
+    .app-navbar-right {
+        margin-left: auto;
+    }
+}
+
+@media (max-width: 600px) {
+    .app-navbar {
+        padding: 12px 15px;
+    }
+
+    .app-navbar-title span {
+        display: none;
+    }
+
+    .app-navbar-user {
+        display: none;
+    }
+
+    .app-navbar-links button {
+        white-space: nowrap;
+        padding: 8px 11px;
+        font-size: 13px;
+    }
+}

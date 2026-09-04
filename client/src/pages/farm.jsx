@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import api from "../services/api";
 import farmService from "../services/farmservice";
+import Navbar from "../components/Navbar";
 
 import "./farm.css";
 
@@ -128,8 +129,11 @@ function Farm() {
     if (loadingFarm) {
         return (
             <div className="farm-page">
+                <Navbar />
+
                 <div className="farm-card">
                     <h1>Loading Farm...</h1>
+
                     <p className="farm-subtitle">
                         Please wait while we load your farm details.
                     </p>
@@ -140,6 +144,9 @@ function Farm() {
 
     return (
         <div className="farm-page">
+
+            <Navbar />
+
             <div className="farm-card">
 
                 <h1>
