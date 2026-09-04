@@ -28,13 +28,11 @@ const analyzeDisease = async (req, res) => {
     }
 
     const normalizedImagePath =
-    `${process.env.PUBLIC_REPORT_BASE_URL}/${req.file.path.replace(/\\/g, "/")}`;
-    
+      `${process.env.PUBLIC_REPORT_BASE_URL}/${req.file.path.replace(/\\/g, "/")}`;
+
     const sensorReadings = {
       temperature: temperature ? Number(temperature) : undefined,
-
       humidity: humidity ? Number(humidity) : undefined,
-
       soilMoisture: soilMoisture ? Number(soilMoisture) : undefined,
     };
 
@@ -110,7 +108,7 @@ const getReportById = async (req, res) => {
 
 /*
  * Public human-readable disease report page.
- * This is the page that the QR code opens.
+ * This is the page opened by scanning the QR code.
  */
 const getReportPage = async (req, res) => {
   try {
@@ -118,14 +116,1855 @@ const getReportPage = async (req, res) => {
 
     const report = await diseaseDetectionService.getReportById(reportId);
 
-    const preventionList = report.prevention
-      .map((item) => `<li>${item}</li>`)
-      .join("");
+    const preventionItems = Array.isArray(report.prevention)
+      ? report.prevention
+      : [];
 
-    const riskClass = report.riskLevel.toLowerCase();
+    const preventionList = preventionItems.length
+      ? preventionItems
+          .map(
+            (item) => `
+              <li>
+                <span class="check">✓</span>
+                <span>${item}</span>
+              </li>
+            `
+          )
+          .join("")
+      : `
+          <li>
+            <span class="check">✓</span>
+            <span>No prevention information available.</span>
+          </li>
+        `;
+
+    const riskLevel = String(report.riskLevel || "Low");
+    const riskClass = riskLevel.toLowerCase();
+
+    const temperature = report.sensorReadings?.temperature ?? "N/A";
+    const humidity = report.sensorReadings?.humidity ?? "N/A";
+    const soilMoisture = report.sensorReadings?.soilMoisture ?? "N/A";
+
+    const reportDate = report.createdAt
+      ? new Date(report.createdAt).toLocaleDateString("en-IN", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        })
+      : "N/A";
+
+    const reportDateTime = report.createdAt
+      ? new Date(report.createdAt).toLocaleString("en-IN", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      : "N/A";
+
+    const confidence = Math.max(
+      0,
+      Math.min(100, Number(report.confidence) || 0)
+    );
 
     return res.send(`
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#155d36"
+    >
+
+    <meta
+        name="description"
+        content="Crop Health Manager disease analysis report"
+    >
+
+    <title>Crop Health Report</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        :root {
+            --green-dark: #124b2e;
+            --green: #18843f;
+            --green-light: #e6f5e9;
+            --green-border: #cce6d1;
+
+            --text: #152f26;
+            --muted: #64746c;
+
+            --background: #f2f8f4;
+            --white: #ffffff;
+
+            --border: #dce9df;
+
+            --yellow-bg: #fff8e4;
+            --yellow-border: #f0dfad;
+            --yellow-text: #795900;
+
+            --blue-bg: #eef6ff;
+            --blue-border: #d5e5f7;
+            --blue-text: #155da5;
+
+            --purple-bg: #f5efff;
+            --purple-border: #dfd3f1;
+            --purple-text: #603a98;
+
+            --red-bg: #ffe9e9;
+            --red-border: #f2cccc;
+            --red-text: #bc2424;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            background:
+                radial-gradient(
+                    circle at 10% 10%,
+                    rgba(50, 150, 82, 0.08),
+                    transparent 28%
+                ),
+                radial-gradient(
+                    circle at 90% 25%,
+                    rgba(85, 165, 100, 0.07),
+                    transparent 25%
+                ),
+                var(--background);
+
+            color: var(--text);
+
+            font-family:
+                Inter,
+                "Segoe UI",
+                Roboto,
+                Helvetica,
+                Arial,
+                sans-serif;
+        }
+
+        .page {
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            width: min(1180px, calc(100% - 36px));
+            margin: 0 auto;
+            padding-bottom: 45px;
+        }
+
+        /* =========================
+           HERO
+        ========================= */
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+
+            min-height: 345px;
+
+            margin: 0 -18px 0;
+
+            padding: 31px 55px 90px;
+
+            color: white;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #0d4d30 0%,
+                    #176b3c 45%,
+                    #2c7c43 100%
+                );
+        }
+
+        /*
+         * Subtle field-like decorative layers.
+         * No external image is required.
+         */
+
+        .hero::before {
+            content: "";
+
+            position: absolute;
+
+            width: 520px;
+            height: 250px;
+
+            right: -80px;
+            bottom: -115px;
+
+            border-radius: 50%;
+
+            background:
+                linear-gradient(
+                    165deg,
+                    rgba(255,255,255,0.08),
+                    rgba(255,255,255,0.015)
+                );
+
+            transform: rotate(-7deg);
+        }
+
+        .hero::after {
+            content: "";
+
+            position: absolute;
+
+            width: 470px;
+            height: 210px;
+
+            left: -150px;
+            bottom: -130px;
+
+            border-radius: 50%;
+
+            background:
+                linear-gradient(
+                    165deg,
+                    rgba(255,255,255,0.07),
+                    rgba(255,255,255,0)
+                );
+
+            transform: rotate(8deg);
+        }
+
+        .hero-grid {
+            position: relative;
+            z-index: 2;
+        }
+
+        .top-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+
+            gap: 25px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+
+            gap: 13px;
+        }
+
+        .brand-logo {
+            width: 50px;
+            height: 50px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 15px;
+
+            background: rgba(255,255,255,0.13);
+
+            border: 1px solid rgba(255,255,255,0.24);
+
+            font-size: 26px;
+
+            box-shadow:
+                0 5px 18px rgba(0,0,0,0.08);
+        }
+
+        .brand-name {
+            font-size: 22px;
+            font-weight: 800;
+
+            letter-spacing: -0.3px;
+        }
+
+        .brand-tagline {
+            margin-top: 2px;
+
+            color: rgba(255,255,255,0.76);
+
+            font-size: 13px;
+        }
+
+        .report-id {
+            min-width: 225px;
+
+            padding: 11px 15px;
+
+            border-radius: 13px;
+
+            background: rgba(255,255,255,0.10);
+
+            border: 1px solid rgba(255,255,255,0.28);
+
+            backdrop-filter: blur(10px);
+        }
+
+        .report-id-label {
+            display: block;
+
+            color: rgba(255,255,255,0.65);
+
+            font-size: 11px;
+
+            margin-bottom: 2px;
+        }
+
+        .report-id-value {
+            display: block;
+
+            color: white;
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+            word-break: break-all;
+        }
+
+        .hero-title {
+            margin: 65px 0 6px;
+
+            font-size: clamp(38px, 5vw, 58px);
+
+            line-height: 1;
+
+            letter-spacing: -1.8px;
+
+            font-weight: 800;
+        }
+
+        .hero-subtitle {
+            margin: 0;
+
+            font-size: 18px;
+
+            font-weight: 600;
+
+            color: rgba(255,255,255,0.94);
+        }
+
+        .hero-description {
+            margin: 8px 0 0;
+
+            color: rgba(255,255,255,0.68);
+
+            font-size: 13px;
+        }
+
+        /* =========================
+           DIAGNOSIS
+        ========================= */
+
+        .diagnosis-card {
+            position: relative;
+            z-index: 5;
+
+            display: grid;
+
+            grid-template-columns:
+                280px
+                minmax(300px, 1fr)
+                175px;
+
+            gap: 30px;
+
+            align-items: center;
+
+            margin-top: -75px;
+
+            padding: 21px;
+
+            background: rgba(255,255,255,0.98);
+
+            border: 1px solid #d9e7dd;
+
+            border-radius: 22px;
+
+            box-shadow:
+                0 18px 40px rgba(25, 78, 45, 0.13);
+        }
+
+        .crop-image-box {
+            position: relative;
+
+            height: 275px;
+
+            overflow: hidden;
+
+            border-radius: 17px;
+
+            background: #eaf3ec;
+
+            border: 1px solid #d7e6da;
+        }
+
+        .crop-image {
+            width: 100%;
+            height: 100%;
+
+            display: block;
+
+            object-fit: cover;
+        }
+
+        .image-label {
+            position: absolute;
+
+            left: 13px;
+            bottom: 13px;
+
+            padding: 9px 13px;
+
+            border-radius: 10px;
+
+            background: rgba(17, 43, 31, 0.78);
+
+            color: white;
+
+            font-size: 12px;
+
+            font-weight: 700;
+
+            backdrop-filter: blur(8px);
+        }
+
+        .diagnosis-content {
+            min-width: 0;
+        }
+
+        .diagnosis-pill {
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 7px;
+
+            padding: 7px 13px;
+
+            border-radius: 999px;
+
+            background: var(--green-light);
+
+            border: 1px solid var(--green-border);
+
+            color: var(--green);
+
+            font-size: 12px;
+
+            font-weight: 800;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.6px;
+        }
+
+        .diagnosis-content h2 {
+            margin: 16px 0 3px;
+
+            color: var(--text);
+
+            font-size: clamp(31px, 4vw, 43px);
+
+            line-height: 1.1;
+
+            letter-spacing: -1.1px;
+        }
+
+        .detected {
+            margin: 0 0 15px;
+
+            color: #42564c;
+
+            font-size: 17px;
+
+            font-weight: 650;
+        }
+
+        .diagnosis-description {
+            margin: 0;
+
+            color: var(--muted);
+
+            font-size: 14px;
+
+            line-height: 1.75;
+
+            max-width: 520px;
+        }
+
+        /* Confidence */
+
+        .confidence-area {
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+
+            gap: 14px;
+        }
+
+        .confidence-ring {
+            position: relative;
+
+            width: 122px;
+            height: 122px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 50%;
+
+            background:
+                conic-gradient(
+                    #22a447 ${confidence * 3.6}deg,
+                    #dcece0 ${confidence * 3.6}deg
+                );
+        }
+
+        .confidence-ring::before {
+            content: "";
+
+            position: absolute;
+
+            width: 94px;
+            height: 94px;
+
+            border-radius: 50%;
+
+            background: white;
+        }
+
+        .confidence-number {
+            position: relative;
+            z-index: 2;
+
+            color: var(--text);
+
+            font-size: 25px;
+
+            font-weight: 800;
+        }
+
+        .confidence-label {
+            margin-top: -7px;
+
+            color: var(--muted);
+
+            font-size: 12px;
+
+            font-weight: 650;
+        }
+
+        .risk-box {
+            width: 100%;
+
+            padding: 12px 10px;
+
+            border-radius: 11px;
+
+            text-align: center;
+
+            font-size: 13px;
+
+            font-weight: 800;
+        }
+
+        .risk-box.low {
+            background: #e8f6eb;
+            color: #247335;
+            border: 1px solid #cce6d1;
+        }
+
+        .risk-box.medium {
+            background: #fff4d4;
+            color: #7d6008;
+            border: 1px solid #efddaa;
+        }
+
+        .risk-box.high {
+            background: var(--red-bg);
+            color: var(--red-text);
+            border: 1px solid var(--red-border);
+        }
+
+        .risk-box.critical {
+            background: #f9dddd;
+            color: #8d1717;
+            border: 1px solid #e8b7b7;
+        }
+
+        /* =========================
+           STANDARD SECTIONS
+        ========================= */
+
+        .section-card {
+            margin-top: 18px;
+
+            padding: 24px;
+
+            background: white;
+
+            border: 1px solid var(--border);
+
+            border-radius: 17px;
+
+            box-shadow:
+                0 5px 18px rgba(28, 73, 45, 0.055);
+        }
+
+        .section-heading {
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+            margin-bottom: 19px;
+        }
+
+        .section-icon {
+            width: 42px;
+            height: 42px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            flex-shrink: 0;
+
+            border-radius: 12px;
+
+            background: var(--green-light);
+
+            border: 1px solid var(--green-border);
+
+            font-size: 20px;
+        }
+
+        .section-heading h2 {
+            margin: 0;
+
+            color: var(--text);
+
+            font-size: 20px;
+
+            line-height: 1.2;
+        }
+
+        .section-heading p {
+            margin: 3px 0 0;
+
+            color: var(--muted);
+
+            font-size: 12px;
+        }
+
+        /* =========================
+           CROP INFORMATION
+        ========================= */
+
+        .details-grid {
+            display: grid;
+
+            grid-template-columns: repeat(2, 1fr);
+
+            gap: 14px;
+        }
+
+        .detail-box {
+            padding: 16px 17px;
+
+            border-radius: 12px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #f8fbf8,
+                    #f5faf6
+                );
+
+            border: 1px solid #e1ebe3;
+        }
+
+        .detail-label {
+            display: block;
+
+            margin-bottom: 4px;
+
+            color: #728078;
+
+            font-size: 11px;
+
+            font-weight: 750;
+
+            letter-spacing: 0.7px;
+
+            text-transform: uppercase;
+        }
+
+        .detail-value {
+            display: block;
+
+            color: var(--text);
+
+            font-size: 16px;
+
+            font-weight: 750;
+
+            word-break: break-word;
+        }
+
+        /* =========================
+           SENSOR SECTION
+        ========================= */
+
+        .sensor-grid {
+            display: grid;
+
+            grid-template-columns: repeat(3, 1fr);
+
+            gap: 15px;
+        }
+
+        .sensor-card {
+            min-height: 140px;
+
+            padding: 19px;
+
+            border-radius: 15px;
+
+            border: 1px solid;
+
+            display: flex;
+
+            flex-direction: column;
+
+            justify-content: center;
+        }
+
+        .sensor-card.temperature {
+            background:
+                linear-gradient(
+                    135deg,
+                    #fff6f2,
+                    #fdf0eb
+                );
+
+            border-color: #f0ddd6;
+        }
+
+        .sensor-card.humidity {
+            background:
+                linear-gradient(
+                    135deg,
+                    #f1f8ff,
+                    #edf5fd
+                );
+
+            border-color: #dce9f5;
+        }
+
+        .sensor-card.soil {
+            background:
+                linear-gradient(
+                    135deg,
+                    #f5f8ed,
+                    #eff5e6
+                );
+
+            border-color: #dfe8d2;
+        }
+
+        .sensor-icon {
+            font-size: 25px;
+
+            margin-bottom: 9px;
+        }
+
+        .sensor-name {
+            color: #53645b;
+
+            font-size: 12px;
+
+            font-weight: 650;
+        }
+
+        .sensor-value {
+            margin-top: 2px;
+
+            color: var(--text);
+
+            font-size: 24px;
+
+            line-height: 1.15;
+
+            font-weight: 800;
+        }
+
+        /* =========================
+           INSIGHTS
+        ========================= */
+
+        .insight-grid {
+            display: grid;
+
+            grid-template-columns: repeat(2, 1fr);
+
+            gap: 18px;
+
+            margin-top: 18px;
+        }
+
+        .insight-card {
+            min-height: 190px;
+
+            padding: 23px;
+
+            border-radius: 18px;
+
+            border: 1px solid;
+        }
+
+        .insight-card.why {
+            background: var(--yellow-bg);
+            border-color: var(--yellow-border);
+        }
+
+        .insight-card.spread {
+            background: var(--blue-bg);
+            border-color: var(--blue-border);
+        }
+
+        .insight-card.solution {
+            background: #eef9f0;
+            border-color: #d3e9d6;
+        }
+
+        .insight-card.prevention {
+            background: var(--purple-bg);
+            border-color: var(--purple-border);
+        }
+
+        .insight-heading {
+            display: flex;
+
+            align-items: center;
+
+            gap: 11px;
+
+            margin-bottom: 15px;
+        }
+
+        .insight-icon {
+            width: 40px;
+            height: 40px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            flex-shrink: 0;
+
+            border-radius: 50%;
+
+            background: white;
+
+            box-shadow:
+                0 2px 8px rgba(0,0,0,0.06);
+
+            font-size: 19px;
+        }
+
+        .insight-heading h2 {
+            margin: 0;
+
+            font-size: 19px;
+
+            line-height: 1.2;
+        }
+
+        .why .insight-heading h2 {
+            color: var(--yellow-text);
+        }
+
+        .spread .insight-heading h2 {
+            color: var(--blue-text);
+        }
+
+        .solution .insight-heading h2 {
+            color: #17643a;
+        }
+
+        .prevention .insight-heading h2 {
+            color: var(--purple-text);
+        }
+
+        .insight-text {
+            margin: 0;
+
+            color: #425149;
+
+            font-size: 14px;
+
+            line-height: 1.75;
+        }
+
+        .prevention-list {
+            list-style: none;
+
+            margin: 0;
+
+            padding: 0;
+        }
+
+        .prevention-list li {
+            display: flex;
+
+            align-items: flex-start;
+
+            gap: 9px;
+
+            margin-bottom: 10px;
+
+            color: #425149;
+
+            font-size: 14px;
+
+            line-height: 1.55;
+        }
+
+        .prevention-list li:last-child {
+            margin-bottom: 0;
+        }
+
+        .check {
+            width: 21px;
+            height: 21px;
+
+            display: inline-flex;
+
+            align-items: center;
+            justify-content: center;
+
+            flex-shrink: 0;
+
+            margin-top: 1px;
+
+            border-radius: 50%;
+
+            background: #e9dcff;
+
+            color: var(--purple-text);
+
+            font-size: 11px;
+
+            font-weight: 800;
+        }
+
+        /* =========================
+           REPORT DETAILS
+        ========================= */
+
+        .report-details {
+            display: grid;
+
+            grid-template-columns: repeat(2, 1fr);
+
+            gap: 13px;
+        }
+
+        .report-detail {
+            padding: 15px 17px;
+
+            border-radius: 11px;
+
+            background: #f8faf8;
+
+            border: 1px solid #e2e9e3;
+        }
+
+        .report-detail span {
+            display: block;
+
+            margin-bottom: 4px;
+
+            color: #748078;
+
+            font-size: 11px;
+
+            font-weight: 650;
+        }
+
+        .report-detail strong {
+            display: block;
+
+            color: var(--text);
+
+            font-size: 13px;
+
+            word-break: break-word;
+        }
+
+        /* =========================
+           FOOTER
+        ========================= */
+
+        .footer {
+            position: relative;
+
+            overflow: hidden;
+
+            margin-top: 25px;
+
+            padding: 35px 25px 31px;
+
+            text-align: center;
+
+            border-radius: 20px;
+
+            border: 1px solid #cfe5d2;
+
+            background:
+                linear-gradient(
+                    170deg,
+                    #eaf8eb,
+                    #dcefdc
+                );
+        }
+
+        .footer::before,
+        .footer::after {
+            content: "";
+
+            position: absolute;
+
+            bottom: -80px;
+
+            width: 260px;
+            height: 150px;
+
+            border-radius: 50%;
+
+            background: rgba(116, 185, 104, 0.13);
+        }
+
+        .footer::before {
+            left: -80px;
+        }
+
+        .footer::after {
+            right: -80px;
+        }
+
+        .footer-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .footer-leaf {
+            font-size: 32px;
+
+            margin-bottom: 6px;
+        }
+
+        .footer-title {
+            margin: 0;
+
+            color: var(--green-dark);
+
+            font-family: Georgia, serif;
+
+            font-size: 25px;
+
+            font-style: italic;
+        }
+
+        .footer-text {
+            margin: 8px 0 0;
+
+            color: #5c7165;
+
+            font-size: 13px;
+        }
+
+        .footer-brand {
+            margin-top: 18px;
+
+            color: var(--green-dark);
+
+            font-size: 16px;
+
+            font-weight: 800;
+        }
+
+        /* =========================
+           TABLET
+        ========================= */
+
+        @media (max-width: 900px) {
+
+            .hero {
+                padding-left: 35px;
+                padding-right: 35px;
+            }
+
+            .diagnosis-card {
+                grid-template-columns:
+                    230px
+                    minmax(250px, 1fr)
+                    155px;
+
+                gap: 20px;
+            }
+
+            .crop-image-box {
+                height: 240px;
+            }
+        }
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 720px) {
+
+            .container {
+                width: calc(100% - 16px);
+            }
+
+            .hero {
+                min-height: 330px;
+
+                margin-left: -8px;
+                margin-right: -8px;
+
+                padding:
+                    22px
+                    18px
+                    85px;
+            }
+
+            .top-row {
+                flex-direction: column;
+
+                gap: 18px;
+            }
+
+            .report-id {
+                width: 100%;
+
+                min-width: 0;
+            }
+
+            .hero-title {
+                margin-top: 45px;
+
+                font-size: 36px;
+
+                line-height: 1.05;
+            }
+
+            .hero-subtitle {
+                font-size: 15px;
+
+                line-height: 1.5;
+            }
+
+            .hero-description {
+                font-size: 12px;
+
+                line-height: 1.5;
+            }
+
+            .diagnosis-card {
+                grid-template-columns: 1fr;
+
+                gap: 20px;
+
+                margin-top: -55px;
+
+                padding: 14px;
+
+                border-radius: 18px;
+            }
+
+            .crop-image-box {
+                height: 250px;
+            }
+
+            .diagnosis-content {
+                padding: 3px 7px;
+            }
+
+            .diagnosis-content h2 {
+                font-size: 31px;
+            }
+
+            .diagnosis-description {
+                font-size: 14px;
+            }
+
+            .confidence-area {
+                display: grid;
+
+                grid-template-columns: 125px 1fr;
+
+                align-items: center;
+
+                gap: 17px;
+
+                padding: 5px 8px 8px;
+            }
+
+            .confidence-label {
+                text-align: center;
+            }
+
+            .risk-box {
+                width: 100%;
+            }
+
+            .section-card {
+                padding: 19px 16px;
+
+                border-radius: 15px;
+            }
+
+            .details-grid,
+            .report-details {
+                grid-template-columns: 1fr;
+            }
+
+            .sensor-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sensor-card {
+                min-height: 105px;
+
+                display: grid;
+
+                grid-template-columns: 44px 1fr;
+
+                grid-template-rows: auto auto;
+
+                align-items: center;
+
+                column-gap: 9px;
+
+                padding: 14px 16px;
+            }
+
+            .sensor-icon {
+                grid-row: 1 / 3;
+
+                margin: 0;
+
+                text-align: center;
+            }
+
+            .sensor-name,
+            .sensor-value {
+                grid-column: 2;
+            }
+
+            .sensor-value {
+                font-size: 22px;
+            }
+
+            .insight-grid {
+                grid-template-columns: 1fr;
+
+                gap: 14px;
+            }
+
+            .insight-card {
+                min-height: auto;
+
+                padding: 19px;
+            }
+
+            .footer {
+                padding-left: 17px;
+                padding-right: 17px;
+            }
+
+            .footer-title {
+                font-size: 22px;
+            }
+        }
+
+        @media (max-width: 390px) {
+
+            .brand-name {
+                font-size: 19px;
+            }
+
+            .hero-title {
+                font-size: 32px;
+            }
+
+            .diagnosis-content h2 {
+                font-size: 28px;
+            }
+
+            .confidence-area {
+                grid-template-columns: 1fr;
+            }
+
+            .confidence-label {
+                margin-top: -5px;
+            }
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="page">
+
+    <div class="container">
+
+
+        <!-- =========================
+             HERO
+        ========================= -->
+
+        <header class="hero">
+
+            <div class="hero-grid">
+
+                <div class="top-row">
+
+                    <div class="brand">
+
+                        <div class="brand-logo">
+                            🌱
+                        </div>
+
+                        <div>
+
+                            <div class="brand-name">
+                                CropHealth
+                            </div>
+
+                            <div class="brand-tagline">
+                                Smart Farming for a Healthier Tomorrow
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="report-id">
+
+                        <span class="report-id-label">
+                            REPORT ID
+                        </span>
+
+                        <span class="report-id-value">
+                            #${report._id}
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <h1 class="hero-title">
+                    Crop Health Report
+                </h1>
+
+                <p class="hero-subtitle">
+                    AI-Assisted Disease Detection for Healthier Crops
+                </p>
+
+                <p class="hero-description">
+                    Smart crop analysis using disease detection and environmental observations.
+                </p>
+
+            </div>
+
+        </header>
+
+
+        <!-- =========================
+             DIAGNOSIS
+        ========================= -->
+
+        <section class="diagnosis-card">
+
+
+            <div class="crop-image-box">
+
+                <img
+                    src="${report.image}"
+                    alt="Analyzed crop"
+                    class="crop-image"
+                >
+
+                <div class="image-label">
+                    📷 &nbsp; Analyzed Crop Image
+                </div>
+
+            </div>
+
+
+            <div class="diagnosis-content">
+
+                <div class="diagnosis-pill">
+                    ✣ &nbsp; Diagnosis
+                </div>
+
+                <h2>
+                    ${report.disease}
+                </h2>
+
+                <p class="detected">
+                    Detected in ${report.crop}
+                </p>
+
+                <p class="diagnosis-description">
+                    ${
+                      report.whyItHappens ||
+                      "The detected condition requires attention based on the crop analysis."
+                    }
+                </p>
+
+            </div>
+
+
+            <div class="confidence-area">
+
+                <div>
+
+                    <div class="confidence-ring">
+
+                        <span class="confidence-number">
+                            ${confidence}%
+                        </span>
+
+                    </div>
+
+                    <div class="confidence-label">
+                        AI Confidence
+                    </div>
+
+                </div>
+
+
+                <div class="risk-box ${riskClass}">
+                    ⚠ &nbsp; ${riskLevel} Risk
+                </div>
+
+            </div>
+
+
+        </section>
+
+
+        <!-- =========================
+             CROP INFORMATION
+        ========================= -->
+
+        <section class="section-card">
+
+            <div class="section-heading">
+
+                <div class="section-icon">
+                    🌿
+                </div>
+
+                <div>
+
+                    <h2>
+                        Crop & Analysis Details
+                    </h2>
+
+                    <p>
+                        Information associated with this report
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="details-grid">
+
+                <div class="detail-box">
+
+                    <span class="detail-label">
+                        Crop
+                    </span>
+
+                    <span class="detail-value">
+                        ${report.crop}
+                    </span>
+
+                </div>
+
+
+                <div class="detail-box">
+
+                    <span class="detail-label">
+                        Report Date
+                    </span>
+
+                    <span class="detail-value">
+                        ${reportDate}
+                    </span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             ENVIRONMENTAL CONDITIONS
+        ========================= -->
+
+        <section class="section-card">
+
+            <div class="section-heading">
+
+                <div class="section-icon">
+                    🌡️
+                </div>
+
+                <div>
+
+                    <h2>
+                        Environmental Conditions
+                    </h2>
+
+                    <p>
+                        Sensor readings recorded at the time of analysis
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="sensor-grid">
+
+
+                <div class="sensor-card temperature">
+
+                    <div class="sensor-icon">
+                        🌡️
+                    </div>
+
+                    <span class="sensor-name">
+                        Temperature
+                    </span>
+
+                    <strong class="sensor-value">
+                        ${temperature} °C
+                    </strong>
+
+                </div>
+
+
+                <div class="sensor-card humidity">
+
+                    <div class="sensor-icon">
+                        💧
+                    </div>
+
+                    <span class="sensor-name">
+                        Humidity
+                    </span>
+
+                    <strong class="sensor-value">
+                        ${humidity} %
+                    </strong>
+
+                </div>
+
+
+                <div class="sensor-card soil">
+
+                    <div class="sensor-icon">
+                        🌱
+                    </div>
+
+                    <span class="sensor-name">
+                        Soil Moisture
+                    </span>
+
+                    <strong class="sensor-value">
+                        ${soilMoisture} %
+                    </strong>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             INSIGHTS
+        ========================= -->
+
+        <div class="insight-grid">
+
+
+            <section class="insight-card why">
+
+                <div class="insight-heading">
+
+                    <div class="insight-icon">
+                        ❓
+                    </div>
+
+                    <h2>
+                        Why is this happening?
+                    </h2>
+
+                </div>
+
+                <p class="insight-text">
+                    ${
+                      report.whyItHappens ||
+                      "No explanation is available for this report."
+                    }
+                </p>
+
+            </section>
+
+
+            <section class="insight-card spread">
+
+                <div class="insight-heading">
+
+                    <div class="insight-icon">
+                        ↗
+                    </div>
+
+                    <h2>
+                        Expected Spread
+                    </h2>
+
+                </div>
+
+                <p class="insight-text">
+                    ${
+                      report.expectedSpread ||
+                      "No spread information is available for this report."
+                    }
+                </p>
+
+            </section>
+
+
+            <section class="insight-card solution">
+
+                <div class="insight-heading">
+
+                    <div class="insight-icon">
+                        💡
+                    </div>
+
+                    <h2>
+                        Recommended Solution
+                    </h2>
+
+                </div>
+
+                <p class="insight-text">
+                    ${
+                      report.solution ||
+                      "No recommended solution is available for this report."
+                    }
+                </p>
+
+            </section>
+
+
+            <section class="insight-card prevention">
+
+                <div class="insight-heading">
+
+                    <div class="insight-icon">
+                        🛡️
+                    </div>
+
+                    <h2>
+                        Prevention Tips
+                    </h2>
+
+                </div>
+
+                <ul class="prevention-list">
+
+                    ${preventionList}
+
+                </ul>
+
+            </section>
+
+
+        </div>
+
+
+        <!-- =========================
+             REPORT DETAILS
+        ========================= -->
+
+        <section class="section-card">
+
+            <div class="section-heading">
+
+                <div class="section-icon">
+                    📄
+                </div>
+
+                <div>
+
+                    <h2>
+                        Report Details
+                    </h2>
+
+                    <p>
+                        Reference information for this analysis
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="report-details">
+
+
+                <div class="report-detail">
+
+                    <span>
+                        Report ID
+                    </span>
+
+                    <strong>
+                        ${report._id}
+                    </strong>
+
+                </div>
+
+
+                <div class="report-detail">
+
+                    <span>
+                        Generated
+                    </span>
+
+                    <strong>
+                        ${reportDateTime}
+                    </strong>
+
+                </div>
+
+
+                <div class="report-detail">
+
+                    <span>
+                        Status
+                    </span>
+
+                    <strong>
+                        ${report.status || "Generated"}
+                    </strong>
+
+                </div>
+
+
+                <div class="report-detail">
+
+                    <span>
+                        Analysis Type
+                    </span>
+
+                    <strong>
+                        AI-assisted crop disease analysis
+                    </strong>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             FOOTER
+        ========================= -->
+
+        <footer class="footer">
+
+            <div class="footer-content">
+
+                <div class="footer-leaf">
+                    🌱
+                </div>
+
+                <h2 class="footer-title">
+                    Together for Healthier Harvests
+                </h2>
+
+                <p class="footer-text">
+                    Smart technology. Better crop awareness. Stronger farming decisions.
+                </p>
+
+                <div class="footer-brand">
+                    CropHealth
+                </div>
+
+            </div>
+
+        </footer>
+
+
+    </div>
+
+</div>
+
+</body>
+
+</html>
+    `);
+  } catch (error) {
+    console.error("Disease Report Page Error:", error);
+
+    return res.status(404).send(`
 <!DOCTYPE html>
 
 <html lang="en">
@@ -139,7 +1978,7 @@ const getReportPage = async (req, res) => {
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Crop Health Report</title>
+    <title>Report Not Found</title>
 
     <style>
 
@@ -149,132 +1988,63 @@ const getReportPage = async (req, res) => {
 
         body {
             margin: 0;
+
+            min-height: 100vh;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
             padding: 20px;
+
+            background: #f3f8f5;
+
             font-family: Arial, sans-serif;
-            background: #f4f7f2;
-            color: #263326;
+
+            color: #173126;
         }
 
-        .container {
-            max-width: 700px;
-            margin: auto;
-        }
+        .error-card {
+            width: min(100%, 500px);
 
-        .header {
-            background: #2e7d32;
-            color: white;
-            padding: 25px;
-            border-radius: 18px;
-            margin-bottom: 20px;
-        }
+            padding: 35px 25px;
 
-        .header h1 {
-            margin: 0 0 8px;
-            font-size: 28px;
-        }
+            text-align: center;
 
-        .header p {
-            margin: 0;
-            opacity: 0.9;
-        }
-
-        .card {
             background: white;
-            padding: 22px;
-            border-radius: 16px;
-            margin-bottom: 16px;
+
+            border: 1px solid #dce9df;
+
+            border-radius: 18px;
+
             box-shadow:
-                0 3px 12px rgba(0,0,0,0.08);
+                0 8px 25px rgba(0,0,0,0.07);
         }
 
-        .card h2 {
-            margin-top: 0;
-            color: #2e7d32;
+        .error-icon {
+            font-size: 42px;
+
+            margin-bottom: 12px;
         }
 
-        .diagnosis {
-            text-align: center;
+        h1 {
+            margin: 0 0 10px;
+
+            color: #1f5132;
+
+            font-size: 24px;
         }
 
-        .disease {
-            font-size: 30px;
-            font-weight: bold;
-            margin: 10px 0;
-        }
+        p {
+            margin: 0;
 
-        .confidence {
-            font-size: 18px;
-            margin-bottom: 15px;
-        }
+            color: #66736b;
 
-        .risk {
-            display: inline-block;
-            padding: 8px 18px;
-            border-radius: 20px;
-            font-weight: bold;
-        }
+            font-size: 14px;
 
-        .low {
-            background: #d7f5dc;
-            color: #176b2c;
-        }
-
-        .medium {
-            background: #fff1c7;
-            color: #856404;
-        }
-
-        .high {
-            background: #ffd8d8;
-            color: #a11a1a;
-        }
-
-        .critical {
-            background: #f4b8b8;
-            color: #7a0000;
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns:
-                repeat(3, 1fr);
-            gap: 10px;
-        }
-
-        .info-box {
-            background: #f4f7f2;
-            padding: 15px;
-            border-radius: 12px;
-            text-align: center;
-        }
-
-        .info-box strong {
-            display: block;
-            font-size: 20px;
-            margin-top: 5px;
-        }
-
-        li {
-            margin-bottom: 10px;
-        }
-
-        .footer {
-            text-align: center;
-            color: #687368;
-            font-size: 13px;
-            padding: 15px;
-        }
-
-        @media (max-width: 500px) {
-
-            .info-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .disease {
-                font-size: 25px;
-            }
-
+            line-height: 1.6;
         }
 
     </style>
@@ -283,211 +2053,32 @@ const getReportPage = async (req, res) => {
 
 <body>
 
-<div class="container">
+    <div class="error-card">
 
-    <div class="header">
-
-        <h1>🌾 Crop Health Report</h1>
-
-        <p>
-            Smart crop disease analysis
-        </p>
-
-    </div>
-
-
-    <div class="card diagnosis">
-
-        <h2>Diagnosis</h2>
-
-        <div class="disease">
-            ${report.disease}
+        <div class="error-icon">
+            📄
         </div>
 
-        <div class="confidence">
-
-            AI Confidence:
-            <strong>
-                ${report.confidence}%
-            </strong>
-
-        </div>
-
-        <span class="risk ${riskClass}">
-
-            Risk:
-            ${report.riskLevel}
-
-        </span>
-
-    </div>
-
-    <div class="card">
-
-    <h2>📷 Analyzed Crop Image</h2>
-
-    <img
-        src="${report.image}"
-        alt="Analyzed crop"
-        style="
-            width: 100%;
-            max-height: 400px;
-            object-fit: contain;
-            border-radius: 12px;
-            display: block;
-        "
-    >
-
-</div>
-
-    <div class="card">
-
-        <h2>🌱 Crop Information</h2>
+        <h1>
+            Disease Report Not Found
+        </h1>
 
         <p>
-
-            <strong>Crop:</strong>
-
-            ${report.crop}
-
-        </p>
-
-        <p>
-
-            <strong>Report ID:</strong>
-
-            ${report._id}
-
+            ${error.message}
         </p>
 
     </div>
-
-
-    <div class="card">
-
-        <h2>🌡️ Sensor Conditions</h2>
-
-        <div class="info-grid">
-
-            <div class="info-box">
-
-                🌡️ Temperature
-
-                <strong>
-                    ${report.sensorReadings?.temperature ?? "N/A"} °C
-                </strong>
-
-            </div>
-
-
-            <div class="info-box">
-
-                💧 Humidity
-
-                <strong>
-                    ${report.sensorReadings?.humidity ?? "N/A"} %
-                </strong>
-
-            </div>
-
-
-            <div class="info-box">
-
-                🌱 Soil Moisture
-
-                <strong>
-                    ${report.sensorReadings?.soilMoisture ?? "N/A"} %
-                </strong>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <div class="card">
-
-        <h2>❓ Why is this happening?</h2>
-
-        <p>
-            ${report.whyItHappens || "No explanation available."}
-        </p>
-
-    </div>
-
-
-    <div class="card">
-
-        <h2>📈 Expected Spread</h2>
-
-        <p>
-            ${report.expectedSpread || "No spread information available."}
-        </p>
-
-    </div>
-
-
-    <div class="card">
-
-        <h2>💡 Recommended Solution</h2>
-
-        <p>
-            ${report.solution || "No solution available."}
-        </p>
-
-    </div>
-
-
-    <div class="card">
-
-        <h2>🛡️ Prevention</h2>
-
-        <ul>
-
-            ${preventionList}
-
-        </ul>
-
-    </div>
-
-
-    <div class="footer">
-
-        Generated by Crop Health System
-
-    </div>
-
-</div>
 
 </body>
 
 </html>
-
-        `);
-  } catch (error) {
-    console.error("Disease Report Page Error:", error);
-
-    return res.status(404).send(`
-
-            <h2>
-                Disease report not found
-            </h2>
-
-            <p>
-                ${error.message}
-            </p>
-
-        `);
+    `);
   }
 };
 
 module.exports = {
   analyzeDisease,
-
   getMyReports,
-
   getReportById,
-
   getReportPage,
 };
