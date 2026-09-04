@@ -1,121 +1,148 @@
 const diseaseDetectionService = require("../services/diseasedetectionservice");
 
 const analyzeDisease = async (req, res) => {
-    try {
-        if (!req.file) {
-            return res.status(400).json({
-                success: false,
-                message: "Crop image is required"
-            });
-        }
-
-        const {
-            farmId,
-            crop,
-            temperature,
-            humidity,
-            soilMoisture
-        } = req.body;
-
-        if (!farmId || !crop) {
-            return res.status(400).json({
-                success: false,
-                message: "Farm and crop are required"
-            });
-        }
-
-        const farmerId = req.user.userId || req.user._id || req.user.id;
-
-        if (!farmerId) {
-            return res.status(401).json({
-                success: false,
-                message: "Unauthorized: Farmer ID missing from request user"
-            });
-        }
-
-        const normalizedImagePath = req.file.path.replace(/\\/g, "/");
-
-        const sensorReadings = {
-            temperature: temperature ? Number(temperature) : undefined,
-            humidity: humidity ? Number(humidity) : undefined,
-            soilMoisture: soilMoisture ? Number(soilMoisture) : undefined
-        };
-
-        const report = await diseaseDetectionService.analyzeCrop({
-            farmerId,
-            farmId: farmId.trim(),
-            crop: crop.trim(),
-            imagePath: normalizedImagePath,
-            sensorReadings
-        });
-
-        return res.status(201).json({
-            success: true,
-            message: "Crop analyzed successfully",
-            report
-        });
-
-    } catch (error) {
-        console.error("Analyze Disease Controller Error:", error);
-
-        return res.status(500).json({
-            success: false,
-            message: error.message || "Failed to analyze crop disease"
-        });
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "Crop image is required",
+      });
     }
+
+    const { farmId, crop, temperature, humidity, soilMoisture } = req.body;
+
+    if (!farmId || !crop) {
+      return res.status(400).json({
+        success: false,
+        message: "Farm and crop are required",
+      });
+    }
+
+    const farmerId = req.user.userId || req.user._id || req.user.id;
+
+    if (!farmerId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized: Farmer ID missing from request user",
+      });
+    }
+
+    const normalizedImagePath =
+    `${process.env.PUBLIC_REPORT_BASE_URL}/${req.file.path.replace(/\\/g, "/")}`;
+    
+    const sensorReadings = {
+      temperature: temperature ? Number(temperature) : undefined,
+
+      humidity: humidity ? Number(humidity) : undefined,
+
+      soilMoisture: soilMoisture ? Number(soilMoisture) : undefined,
+    };
+
+    const report = await diseaseDetectionService.analyzeCrop({
+      farmerId,
+      farmId: farmId.trim(),
+      crop: crop.trim(),
+      imagePath: normalizedImagePath,
+      sensorReadings,
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Crop analyzed successfully",
+      report,
+    });
+  } catch (error) {
+    console.error("Analyze Disease Controller Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to analyze crop disease",
+    });
+  }
 };
 
+const getMyReports = async (req, res) => {
+  try {
+    const farmerId = req.user.userId || req.user._id || req.user.id;
+
+    if (!farmerId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized: Farmer ID missing from request user",
+      });
+    }
+
+    const reports = await diseaseDetectionService.getMyReports(farmerId);
+
+    return res.status(200).json({
+      success: true,
+      reports,
+    });
+  } catch (error) {
+    console.error("Get My Disease Reports Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to fetch disease reports",
+    });
+  }
+};
 
 const getReportById = async (req, res) => {
-    try {
-        const { reportId } = req.params;
+  try {
+    const { reportId } = req.params;
 
-        const report =
-            await diseaseDetectionService.getReportById(reportId);
+    const report = await diseaseDetectionService.getReportById(reportId);
 
-        return res.status(200).json({
-            success: true,
-            report
-        });
+    return res.status(200).json({
+      success: true,
+      report,
+    });
+  } catch (error) {
+    console.error("Get Disease Report Error:", error);
 
-    } catch (error) {
-        console.error("Get Disease Report Error:", error);
-
-        return res.status(404).json({
-            success: false,
-            message: error.message || "Disease report not found"
-        });
-    }
+    return res.status(404).json({
+      success: false,
+      message: error.message || "Disease report not found",
+    });
+  }
 };
-
 
 /*
  * Public human-readable disease report page.
- * This is the page that the QR code will eventually open.
+ * This is the page that the QR code opens.
  */
 const getReportPage = async (req, res) => {
-    try {
-        const { reportId } = req.params;
+  try {
+    const { reportId } = req.params;
 
-        const report =
-            await diseaseDetectionService.getReportById(reportId);
+    const report = await diseaseDetectionService.getReportById(reportId);
 
-        const preventionList = report.prevention
-            .map(item => `<li>${item}</li>`)
-            .join("");
+    const preventionList = report.prevention
+      .map((item) => `<li>${item}</li>`)
+      .join("");
 
-        const riskClass = report.riskLevel.toLowerCase();
+    const riskClass = report.riskLevel.toLowerCase();
 
-        return res.send(`
+    return res.send(`
+
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Crop Health Report</title>
 
     <style>
+
         * {
             box-sizing: border-box;
         }
@@ -156,7 +183,8 @@ const getReportPage = async (req, res) => {
             padding: 22px;
             border-radius: 16px;
             margin-bottom: 16px;
-            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+            box-shadow:
+                0 3px 12px rgba(0,0,0,0.08);
         }
 
         .card h2 {
@@ -208,7 +236,8 @@ const getReportPage = async (req, res) => {
 
         .info-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns:
+                repeat(3, 1fr);
             gap: 10px;
         }
 
@@ -237,6 +266,7 @@ const getReportPage = async (req, res) => {
         }
 
         @media (max-width: 500px) {
+
             .info-grid {
                 grid-template-columns: 1fr;
             }
@@ -244,8 +274,11 @@ const getReportPage = async (req, res) => {
             .disease {
                 font-size: 25px;
             }
+
         }
+
     </style>
+
 </head>
 
 <body>
@@ -253,12 +286,18 @@ const getReportPage = async (req, res) => {
 <div class="container">
 
     <div class="header">
+
         <h1>🌾 Crop Health Report</h1>
-        <p>Smart crop disease analysis</p>
+
+        <p>
+            Smart crop disease analysis
+        </p>
+
     </div>
 
 
     <div class="card diagnosis">
+
         <h2>Diagnosis</h2>
 
         <div class="disease">
@@ -266,119 +305,189 @@ const getReportPage = async (req, res) => {
         </div>
 
         <div class="confidence">
-            AI Confidence: <strong>${report.confidence}%</strong>
+
+            AI Confidence:
+            <strong>
+                ${report.confidence}%
+            </strong>
+
         </div>
 
         <span class="risk ${riskClass}">
-            Risk: ${report.riskLevel}
+
+            Risk:
+            ${report.riskLevel}
+
         </span>
+
     </div>
 
+    <div class="card">
+
+    <h2>📷 Analyzed Crop Image</h2>
+
+    <img
+        src="${report.image}"
+        alt="Analyzed crop"
+        style="
+            width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 12px;
+            display: block;
+        "
+    >
+
+</div>
 
     <div class="card">
+
         <h2>🌱 Crop Information</h2>
 
         <p>
+
             <strong>Crop:</strong>
+
             ${report.crop}
+
         </p>
 
         <p>
+
             <strong>Report ID:</strong>
+
             ${report._id}
+
         </p>
+
     </div>
 
 
     <div class="card">
+
         <h2>🌡️ Sensor Conditions</h2>
 
         <div class="info-grid">
 
             <div class="info-box">
+
                 🌡️ Temperature
+
                 <strong>
                     ${report.sensorReadings?.temperature ?? "N/A"} °C
                 </strong>
+
             </div>
 
+
             <div class="info-box">
+
                 💧 Humidity
+
                 <strong>
                     ${report.sensorReadings?.humidity ?? "N/A"} %
                 </strong>
+
             </div>
 
+
             <div class="info-box">
+
                 🌱 Soil Moisture
+
                 <strong>
                     ${report.sensorReadings?.soilMoisture ?? "N/A"} %
                 </strong>
+
             </div>
 
         </div>
+
     </div>
 
 
     <div class="card">
+
         <h2>❓ Why is this happening?</h2>
 
         <p>
             ${report.whyItHappens || "No explanation available."}
         </p>
+
     </div>
 
 
     <div class="card">
+
         <h2>📈 Expected Spread</h2>
 
         <p>
             ${report.expectedSpread || "No spread information available."}
         </p>
+
     </div>
 
 
     <div class="card">
+
         <h2>💡 Recommended Solution</h2>
 
         <p>
             ${report.solution || "No solution available."}
         </p>
+
     </div>
 
 
     <div class="card">
+
         <h2>🛡️ Prevention</h2>
 
         <ul>
+
             ${preventionList}
+
         </ul>
+
     </div>
 
 
     <div class="footer">
+
         Generated by Crop Health System
+
     </div>
 
 </div>
 
 </body>
+
 </html>
-        `);
 
-    } catch (error) {
-        console.error("Disease Report Page Error:", error);
-
-        return res.status(404).send(`
-            <h2>Disease report not found</h2>
-            <p>${error.message}</p>
         `);
-    }
+  } catch (error) {
+    console.error("Disease Report Page Error:", error);
+
+    return res.status(404).send(`
+
+            <h2>
+                Disease report not found
+            </h2>
+
+            <p>
+                ${error.message}
+            </p>
+
+        `);
+  }
 };
 
-
 module.exports = {
-    analyzeDisease,
-    getReportById,
-    getReportPage
+  analyzeDisease,
+
+  getMyReports,
+
+  getReportById,
+
+  getReportPage,
 };

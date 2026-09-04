@@ -12,6 +12,7 @@ const diseaseRoutes = require("./routes/diseaseroutes");
 app.use(cors());
 
 app.use(express.json());
+app.use("/uploads", express.static("uploads"));
 
 app.use("/api/farms", farmRoutes);
 app.use("/api/disease", diseaseRoutes);

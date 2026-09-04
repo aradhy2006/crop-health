@@ -1,0 +1,153 @@
+.report-detail-page {
+    min-height: 100vh;
+    padding: 30px 20px;
+    background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+    font-family: Arial, sans-serif;
+    box-sizing: border-box;
+}
+
+.report-detail-card {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+}
+
+.report-detail-back-button {
+    border: none;
+    background: none;
+    color: #2e7d32;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 25px;
+}
+
+.report-detail-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.report-detail-header h1 {
+    margin: 0 0 10px;
+    color: #2e7d32;
+    font-size: 30px;
+}
+
+.report-detail-header p {
+    margin: 0;
+    color: #555555;
+}
+
+.report-detail-image {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.report-detail-image img {
+    max-width: 100%;
+    max-height: 400px;
+    border-radius: 12px;
+    object-fit: contain;
+}
+
+.report-detail-summary {
+    padding: 20px;
+    background: #f5f8f5;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.report-detail-summary h2 {
+    margin: 0 0 15px;
+    color: #2e7d32;
+    font-size: 24px;
+}
+
+.report-detail-summary p {
+    margin: 9px 0;
+    color: #333333;
+}
+
+.report-detail-block {
+    padding: 20px 0;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.report-detail-block h3 {
+    margin: 0 0 10px;
+    color: #2e7d32;
+}
+
+.report-detail-block p,
+.report-detail-block li {
+    color: #333333;
+    line-height: 1.6;
+}
+
+.report-detail-block ul {
+    padding-left: 22px;
+}
+
+.report-detail-qr {
+    text-align: center;
+    padding-top: 25px;
+}
+
+.report-detail-qr h3 {
+    color: #2e7d32;
+    margin-bottom: 10px;
+}
+
+.report-detail-qr p {
+    color: #555555;
+    line-height: 1.5;
+}
+
+.report-detail-qr-image {
+    width: 220px;
+    height: 220px;
+    margin-top: 10px;
+}
+
+.report-detail-message {
+    text-align: center;
+    color: #555555;
+    padding: 30px;
+}
+
+.report-detail-error {
+    padding: 15px;
+    border-radius: 8px;
+    background: #ffebee;
+    color: #c62828;
+    text-align: center;
+}
+
+@media (max-width: 600px) {
+    .report-detail-page {
+        padding: 20px 12px;
+    }
+
+    .report-detail-card {
+        padding: 28px 20px;
+    }
+
+    .report-detail-header h1 {
+        font-size: 25px;
+    }
+
+    .report-detail-image img {
+        max-height: 300px;
+    }
+
+    .report-detail-qr-image {
+        width: 180px;
+        height: 180px;
+    }
+}

@@ -1,10 +1,16 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+
 import api from "../services/api";
+import farmService from "../services/farmservice";
+
 import "./farm.css";
 
 function Farm() {
     const navigate = useNavigate();
+    const { farmId } = useParams();
+
+    const isEditMode = Boolean(farmId);
 
     const [formData, setFormData] = useState({
         farmName: "",
@@ -18,6 +24,48 @@ function Farm() {
     const [error, setError] = useState("");
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
+    const [loadingFarm, setLoadingFarm] = useState(isEditMode);
+
+    useEffect(() => {
+        if (!isEditMode) {
+            return;
+        }
+
+        const loadFarm = async () => {
+            try {
+                const response = await farmService.getMyFarms();
+
+                const farm = response.farms?.find(
+                    (item) => item._id === farmId
+                );
+
+                if (!farm) {
+                    setError("Farm not found");
+                    return;
+                }
+
+                setFormData({
+                    farmName: farm.farmName || "",
+                    location: farm.location || "",
+                    crop: farm.crop || "",
+                    cropVariety: farm.cropVariety || "",
+                    cropStage: farm.cropStage || "",
+                    soilType: farm.soilType || ""
+                });
+            } catch (error) {
+                console.error("Unable to load farm:", error);
+
+                setError(
+                    error.response?.data?.message ||
+                    "Unable to load farm"
+                );
+            } finally {
+                setLoadingFarm(false);
+            }
+        };
+
+        loadFarm();
+    }, [farmId, isEditMode]);
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -36,42 +84,74 @@ function Farm() {
         setLoading(true);
 
         try {
-            const token = localStorage.getItem("token");
+            let response;
 
-            const response = await api.post(
-                "/farms",
-                formData,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
+            if (isEditMode) {
+                response = await farmService.updateFarm(
+                    farmId,
+                    formData
+                );
+            } else {
+                const token = localStorage.getItem("token");
+
+                response = await api.post(
+                    "/farms",
+                    formData,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
                     }
-                }
-            );
+                );
 
-            setMessage(response.data.message);
+                response = response.data;
+            }
+
+            setMessage(response.message);
 
             setTimeout(() => {
                 navigate("/dashboard");
             }, 1000);
 
         } catch (error) {
+            console.error("Unable to save farm:", error);
+
             setError(
                 error.response?.data?.message ||
-                "Unable to create farm"
+                "Unable to save farm"
             );
         } finally {
             setLoading(false);
         }
     };
 
+    if (loadingFarm) {
+        return (
+            <div className="farm-page">
+                <div className="farm-card">
+                    <h1>Loading Farm...</h1>
+                    <p className="farm-subtitle">
+                        Please wait while we load your farm details.
+                    </p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="farm-page">
             <div className="farm-card">
 
-                <h1>Add Your Farm</h1>
+                <h1>
+                    {isEditMode
+                        ? "Edit Your Farm"
+                        : "Add Your Farm"}
+                </h1>
 
                 <p className="farm-subtitle">
-                    Enter your farm and crop information
+                    {isEditMode
+                        ? "Update your farm and crop information"
+                        : "Enter your farm and crop information"}
                 </p>
 
                 {error && (
@@ -90,6 +170,7 @@ function Farm() {
 
                     <div className="farm-form-group">
                         <label>Farm Name</label>
+
                         <input
                             type="text"
                             name="farmName"
@@ -102,6 +183,7 @@ function Farm() {
 
                     <div className="farm-form-group">
                         <label>Location</label>
+
                         <input
                             type="text"
                             name="location"
@@ -114,6 +196,7 @@ function Farm() {
 
                     <div className="farm-form-group">
                         <label>Crop</label>
+
                         <input
                             type="text"
                             name="crop"
@@ -126,6 +209,7 @@ function Farm() {
 
                     <div className="farm-form-group">
                         <label>Crop Variety</label>
+
                         <input
                             type="text"
                             name="cropVariety"
@@ -137,6 +221,7 @@ function Farm() {
 
                     <div className="farm-form-group">
                         <label>Crop Stage</label>
+
                         <select
                             name="cropStage"
                             value={formData.cropStage}
@@ -146,18 +231,23 @@ function Farm() {
                             <option value="">
                                 Select crop stage
                             </option>
+
                             <option value="Germination">
                                 Germination
                             </option>
+
                             <option value="Vegetative">
                                 Vegetative
                             </option>
+
                             <option value="Flowering">
                                 Flowering
                             </option>
+
                             <option value="Fruiting">
                                 Fruiting
                             </option>
+
                             <option value="Maturity">
                                 Maturity
                             </option>
@@ -166,6 +256,7 @@ function Farm() {
 
                     <div className="farm-form-group">
                         <label>Soil Type</label>
+
                         <select
                             name="soilType"
                             value={formData.soilType}
@@ -174,10 +265,22 @@ function Farm() {
                             <option value="">
                                 Select soil type
                             </option>
-                            <option value="Loamy">Loamy</option>
-                            <option value="Clay">Clay</option>
-                            <option value="Sandy">Sandy</option>
-                            <option value="Silty">Silty</option>
+
+                            <option value="Loamy">
+                                Loamy
+                            </option>
+
+                            <option value="Clay">
+                                Clay
+                            </option>
+
+                            <option value="Sandy">
+                                Sandy
+                            </option>
+
+                            <option value="Silty">
+                                Silty
+                            </option>
                         </select>
                     </div>
 
@@ -186,7 +289,11 @@ function Farm() {
                         className="farm-button"
                         disabled={loading}
                     >
-                        {loading ? "Saving..." : "Save Farm"}
+                        {loading
+                            ? "Saving..."
+                            : isEditMode
+                                ? "Update Farm"
+                                : "Save Farm"}
                     </button>
 
                 </form>

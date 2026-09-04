@@ -22,7 +22,9 @@ const createFarm = async (req, res) => {
 
 const getMyFarms = async (req, res) => {
     try {
-        const farms = await farmService.getMyFarms(req.user.userId);
+        const farms = await farmService.getMyFarms(
+            req.user.userId
+        );
 
         res.status(200).json({
             success: true,
@@ -36,7 +38,29 @@ const getMyFarms = async (req, res) => {
     }
 };
 
+const updateFarm = async (req, res) => {
+    try {
+        const farm = await farmService.updateFarm(
+            req.params.farmId,
+            req.body,
+            req.user.userId
+        );
+
+        res.status(200).json({
+            success: true,
+            message: "Farm updated successfully",
+            farm
+        });
+    } catch (error) {
+        res.status(400).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
 module.exports = {
     createFarm,
-    getMyFarms
+    getMyFarms,
+    updateFarm
 };

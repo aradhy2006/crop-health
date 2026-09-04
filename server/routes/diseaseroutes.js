@@ -2,6 +2,7 @@ const express = require("express");
 
 const {
     analyzeDisease,
+    getMyReports,
     getReportById,
     getReportPage
 } = require("../controllers/diseasecontroller");
@@ -14,6 +15,8 @@ const upload =
 
 const router = express.Router();
 
+
+// Analyze crop image
 router.post(
     "/analyze",
     authMiddleware,
@@ -21,16 +24,27 @@ router.post(
     analyzeDisease
 );
 
-// JSON API
+
+// Get reports of the logged-in farmer
+router.get(
+    "/reports",
+    authMiddleware,
+    getMyReports
+);
+
+
+// Get a single disease report
 router.get(
     "/reports/:reportId",
+    authMiddleware,
     getReportById
 );
 
-// Human-readable public report page
+// Public human-readable report page
 router.get(
     "/report-page/:reportId",
     getReportPage
 );
+
 
 module.exports = router;
