@@ -151,6 +151,12 @@ function Dashboard() {
 
     const latestReport = reports[0];
 
+    const isSensorOnline =
+        sensorReading &&
+        Date.now() -
+            new Date(sensorReading.recordedAt).getTime() <
+            30000;
+
     return (
         <div className="dashboard">
             <Navbar />
@@ -574,7 +580,7 @@ function Dashboard() {
 
                             <span
                                 className={`sensor-status ${
-                                    sensorReading
+                                    isSensorOnline
                                         ? "sensor-online"
                                         : "sensor-offline"
                                 }`}
@@ -582,7 +588,7 @@ function Dashboard() {
 
                                 <i></i>
 
-                                {sensorReading
+                                {isSensorOnline
                                     ? "Online"
                                     : "Offline"}
 
