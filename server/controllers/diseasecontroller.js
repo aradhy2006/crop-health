@@ -1,174 +1,254 @@
 const diseaseDetectionService = require("../services/diseasedetectionservice");
+const path = require("path");
 
 const analyzeDisease = async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        message: "Crop image is required",
-      });
+    try {
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: "Crop image is required",
+            });
+        }
+
+        const {
+            farmId,
+            crop,
+            temperature,
+            humidity,
+            soilMoisture,
+        } = req.body;
+
+        if (!farmId || !crop) {
+            return res.status(400).json({
+                success: false,
+                message: "Farm and crop are required",
+            });
+        }
+
+        const farmerId =
+            req.user.userId ||
+            req.user._id ||
+            req.user.id;
+
+        if (!farmerId) {
+            return res.status(401).json({
+                success: false,
+                message:
+                    "Unauthorized: Farmer ID missing from request user",
+            });
+        }
+
+        // Actual local path of uploaded image
+        const localImagePath = path.resolve(req.file.path);
+
+        console.log("Uploaded file path:", req.file.path);
+        console.log("Local image path:", localImagePath);
+
+        const sensorReadings = {
+            temperature:
+                temperature !== undefined &&
+                temperature !== ""
+                    ? Number(temperature)
+                    : undefined,
+
+            humidity:
+                humidity !== undefined &&
+                humidity !== ""
+                    ? Number(humidity)
+                    : undefined,
+
+            soilMoisture:
+                soilMoisture !== undefined &&
+                soilMoisture !== ""
+                    ? Number(soilMoisture)
+                    : undefined,
+        };
+
+        const report =
+            await diseaseDetectionService.analyzeCrop({
+                farmerId,
+                farmId: farmId.trim(),
+                crop: crop.trim(),
+                imagePath: localImagePath,
+                sensorReadings,
+            });
+
+        // Public URL for report image
+        const publicImageUrl =
+            `${process.env.PUBLIC_REPORT_BASE_URL}/` +
+            `${req.file.path.replace(/\\/g, "/")}`;
+
+        report.image = publicImageUrl;
+
+        await report.save();
+
+        return res.status(201).json({
+            success: true,
+            message: "Crop analyzed successfully",
+            report,
+        });
+    } catch (error) {
+        console.error(
+            "Analyze Disease Controller Error:",
+            error
+        );
+
+        return res.status(500).json({
+            success: false,
+            message:
+                error.message ||
+                "Failed to analyze crop disease",
+        });
     }
-
-    const { farmId, crop, temperature, humidity, soilMoisture } = req.body;
-
-    if (!farmId || !crop) {
-      return res.status(400).json({
-        success: false,
-        message: "Farm and crop are required",
-      });
-    }
-
-    const farmerId = req.user.userId || req.user._id || req.user.id;
-
-    if (!farmerId) {
-      return res.status(401).json({
-        success: false,
-        message: "Unauthorized: Farmer ID missing from request user",
-      });
-    }
-
-    const normalizedImagePath =
-      `${process.env.PUBLIC_REPORT_BASE_URL}/${req.file.path.replace(/\\/g, "/")}`;
-
-    const sensorReadings = {
-      temperature: temperature ? Number(temperature) : undefined,
-      humidity: humidity ? Number(humidity) : undefined,
-      soilMoisture: soilMoisture ? Number(soilMoisture) : undefined,
-    };
-
-    const report = await diseaseDetectionService.analyzeCrop({
-      farmerId,
-      farmId: farmId.trim(),
-      crop: crop.trim(),
-      imagePath: normalizedImagePath,
-      sensorReadings,
-    });
-
-    return res.status(201).json({
-      success: true,
-      message: "Crop analyzed successfully",
-      report,
-    });
-  } catch (error) {
-    console.error("Analyze Disease Controller Error:", error);
-
-    return res.status(500).json({
-      success: false,
-      message: error.message || "Failed to analyze crop disease",
-    });
-  }
 };
 
 const getMyReports = async (req, res) => {
-  try {
-    const farmerId = req.user.userId || req.user._id || req.user.id;
+    try {
+        const farmerId =
+            req.user.userId ||
+            req.user._id ||
+            req.user.id;
 
-    if (!farmerId) {
-      return res.status(401).json({
-        success: false,
-        message: "Unauthorized: Farmer ID missing from request user",
-      });
+        if (!farmerId) {
+            return res.status(401).json({
+                success: false,
+                message:
+                    "Unauthorized: Farmer ID missing from request user",
+            });
+        }
+
+        const reports =
+            await diseaseDetectionService.getMyReports(
+                farmerId
+            );
+
+        return res.status(200).json({
+            success: true,
+            reports,
+        });
+    } catch (error) {
+        console.error(
+            "Get My Disease Reports Error:",
+            error
+        );
+
+        return res.status(500).json({
+            success: false,
+            message:
+                error.message ||
+                "Failed to fetch disease reports",
+        });
     }
-
-    const reports = await diseaseDetectionService.getMyReports(farmerId);
-
-    return res.status(200).json({
-      success: true,
-      reports,
-    });
-  } catch (error) {
-    console.error("Get My Disease Reports Error:", error);
-
-    return res.status(500).json({
-      success: false,
-      message: error.message || "Failed to fetch disease reports",
-    });
-  }
 };
 
 const getReportById = async (req, res) => {
-  try {
-    const { reportId } = req.params;
+    try {
+        const { reportId } = req.params;
 
-    const report = await diseaseDetectionService.getReportById(reportId);
+        const report =
+            await diseaseDetectionService.getReportById(
+                reportId
+            );
 
-    return res.status(200).json({
-      success: true,
-      report,
-    });
-  } catch (error) {
-    console.error("Get Disease Report Error:", error);
+        return res.status(200).json({
+            success: true,
+            report,
+        });
+    } catch (error) {
+        console.error(
+            "Get Disease Report Error:",
+            error
+        );
 
-    return res.status(404).json({
-      success: false,
-      message: error.message || "Disease report not found",
-    });
-  }
+        return res.status(404).json({
+            success: false,
+            message:
+                error.message ||
+                "Disease report not found",
+        });
+    }
 };
 
-/*
- * Public human-readable disease report page.
- * This is the page opened by scanning the QR code.
- */
 const getReportPage = async (req, res) => {
-  try {
-    const { reportId } = req.params;
+    try {
+        const { reportId } = req.params;
 
-    const report = await diseaseDetectionService.getReportById(reportId);
+        const report =
+            await diseaseDetectionService.getReportById(
+                reportId
+            );
 
-    const preventionItems = Array.isArray(report.prevention)
-      ? report.prevention
-      : [];
+        const preventionItems =
+            Array.isArray(report.prevention)
+                ? report.prevention
+                : [];
 
-    const preventionList = preventionItems.length
-      ? preventionItems
-          .map(
-            (item) => `
-              <li>
-                <span class="check">✓</span>
-                <span>${item}</span>
-              </li>
-            `
-          )
-          .join("")
-      : `
-          <li>
-            <span class="check">✓</span>
-            <span>No prevention information available.</span>
-          </li>
-        `;
+        const preventionList = preventionItems.length
+            ? preventionItems
+                  .map(
+                      (item) => `
+                        <li>
+                            <span class="check">✓</span>
+                            <span>${item}</span>
+                        </li>
+                    `
+                  )
+                  .join("")
+            : `
+                <li>
+                    <span class="check">✓</span>
+                    <span>
+                        No prevention information available.
+                    </span>
+                </li>
+            `;
 
-    const riskLevel = String(report.riskLevel || "Low");
-    const riskClass = riskLevel.toLowerCase();
+        const riskLevel =
+            String(report.riskLevel || "Low");
 
-    const temperature = report.sensorReadings?.temperature ?? "N/A";
-    const humidity = report.sensorReadings?.humidity ?? "N/A";
-    const soilMoisture = report.sensorReadings?.soilMoisture ?? "N/A";
+        const riskClass =
+            riskLevel.toLowerCase();
 
-    const reportDate = report.createdAt
-      ? new Date(report.createdAt).toLocaleDateString("en-IN", {
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-        })
-      : "N/A";
+        const temperature =
+            report.sensorReadings?.temperature ?? "N/A";
 
-    const reportDateTime = report.createdAt
-      ? new Date(report.createdAt).toLocaleString("en-IN", {
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-        })
-      : "N/A";
+        const humidity =
+            report.sensorReadings?.humidity ?? "N/A";
 
-    const confidence = Math.max(
-      0,
-      Math.min(100, Number(report.confidence) || 0)
-    );
+        const soilMoisture =
+            report.sensorReadings?.soilMoisture ?? "N/A";
 
-    return res.send(`
+        const reportDate = report.createdAt
+            ? new Date(
+                  report.createdAt
+              ).toLocaleDateString("en-IN", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+              })
+            : "N/A";
+
+        const reportDateTime = report.createdAt
+            ? new Date(
+                  report.createdAt
+              ).toLocaleString("en-IN", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+              })
+            : "N/A";
+
+        const confidence = Math.max(
+            0,
+            Math.min(
+                100,
+                Number(report.confidence) || 0
+            )
+        );
+
+        return res.send(`
 <!DOCTYPE html>
 <html lang="en">
 
@@ -271,10 +351,6 @@ const getReportPage = async (req, res) => {
             padding-bottom: 45px;
         }
 
-        /* =========================
-           HERO
-        ========================= */
-
         .hero {
             position: relative;
             overflow: hidden;
@@ -294,57 +370,6 @@ const getReportPage = async (req, res) => {
                     #176b3c 45%,
                     #2c7c43 100%
                 );
-        }
-
-        /*
-         * Subtle field-like decorative layers.
-         * No external image is required.
-         */
-
-        .hero::before {
-            content: "";
-
-            position: absolute;
-
-            width: 520px;
-            height: 250px;
-
-            right: -80px;
-            bottom: -115px;
-
-            border-radius: 50%;
-
-            background:
-                linear-gradient(
-                    165deg,
-                    rgba(255,255,255,0.08),
-                    rgba(255,255,255,0.015)
-                );
-
-            transform: rotate(-7deg);
-        }
-
-        .hero::after {
-            content: "";
-
-            position: absolute;
-
-            width: 470px;
-            height: 210px;
-
-            left: -150px;
-            bottom: -130px;
-
-            border-radius: 50%;
-
-            background:
-                linear-gradient(
-                    165deg,
-                    rgba(255,255,255,0.07),
-                    rgba(255,255,255,0)
-                );
-
-            transform: rotate(8deg);
         }
 
         .hero-grid {
@@ -382,23 +407,16 @@ const getReportPage = async (req, res) => {
             border: 1px solid rgba(255,255,255,0.24);
 
             font-size: 26px;
-
-            box-shadow:
-                0 5px 18px rgba(0,0,0,0.08);
         }
 
         .brand-name {
             font-size: 22px;
             font-weight: 800;
-
-            letter-spacing: -0.3px;
         }
 
         .brand-tagline {
             margin-top: 2px;
-
             color: rgba(255,255,255,0.76);
-
             font-size: 13px;
         }
 
@@ -412,29 +430,20 @@ const getReportPage = async (req, res) => {
             background: rgba(255,255,255,0.10);
 
             border: 1px solid rgba(255,255,255,0.28);
-
-            backdrop-filter: blur(10px);
         }
 
         .report-id-label {
             display: block;
-
             color: rgba(255,255,255,0.65);
-
             font-size: 11px;
-
             margin-bottom: 2px;
         }
 
         .report-id-value {
             display: block;
-
             color: white;
-
             font-size: 13px;
-
             font-weight: 700;
-
             word-break: break-all;
         }
 
@@ -442,35 +451,22 @@ const getReportPage = async (req, res) => {
             margin: 65px 0 6px;
 
             font-size: clamp(38px, 5vw, 58px);
-
             line-height: 1;
-
-            letter-spacing: -1.8px;
-
             font-weight: 800;
         }
 
         .hero-subtitle {
             margin: 0;
-
             font-size: 18px;
-
             font-weight: 600;
-
             color: rgba(255,255,255,0.94);
         }
 
         .hero-description {
             margin: 8px 0 0;
-
             color: rgba(255,255,255,0.68);
-
             font-size: 13px;
         }
-
-        /* =========================
-           DIAGNOSIS
-        ========================= */
 
         .diagnosis-card {
             position: relative;
@@ -518,9 +514,7 @@ const getReportPage = async (req, res) => {
         .crop-image {
             width: 100%;
             height: 100%;
-
             display: block;
-
             object-fit: cover;
         }
 
@@ -539,10 +533,7 @@ const getReportPage = async (req, res) => {
             color: white;
 
             font-size: 12px;
-
             font-weight: 700;
-
-            backdrop-filter: blur(8px);
         }
 
         .diagnosis-content {
@@ -571,8 +562,6 @@ const getReportPage = async (req, res) => {
             font-weight: 800;
 
             text-transform: uppercase;
-
-            letter-spacing: 0.6px;
         }
 
         .diagnosis-content h2 {
@@ -583,41 +572,26 @@ const getReportPage = async (req, res) => {
             font-size: clamp(31px, 4vw, 43px);
 
             line-height: 1.1;
-
-            letter-spacing: -1.1px;
         }
 
         .detected {
             margin: 0 0 15px;
-
             color: #42564c;
-
             font-size: 17px;
-
             font-weight: 650;
         }
 
         .diagnosis-description {
             margin: 0;
-
             color: var(--muted);
-
             font-size: 14px;
-
             line-height: 1.75;
-
-            max-width: 520px;
         }
-
-        /* Confidence */
 
         .confidence-area {
             display: flex;
-
             flex-direction: column;
-
             align-items: center;
-
             gap: 14px;
         }
 
@@ -667,25 +641,18 @@ const getReportPage = async (req, res) => {
 
         .confidence-label {
             margin-top: -7px;
-
             color: var(--muted);
-
             font-size: 12px;
-
             font-weight: 650;
+            text-align: center;
         }
 
         .risk-box {
             width: 100%;
-
             padding: 12px 10px;
-
             border-radius: 11px;
-
             text-align: center;
-
             font-size: 13px;
-
             font-weight: 800;
         }
 
@@ -713,32 +680,20 @@ const getReportPage = async (req, res) => {
             border: 1px solid #e8b7b7;
         }
 
-        /* =========================
-           STANDARD SECTIONS
-        ========================= */
-
         .section-card {
             margin-top: 18px;
-
             padding: 24px;
-
             background: white;
-
             border: 1px solid var(--border);
-
             border-radius: 17px;
-
             box-shadow:
                 0 5px 18px rgba(28, 73, 45, 0.055);
         }
 
         .section-heading {
             display: flex;
-
             align-items: center;
-
             gap: 12px;
-
             margin-bottom: 19px;
         }
 
@@ -749,8 +704,6 @@ const getReportPage = async (req, res) => {
             display: flex;
             align-items: center;
             justify-content: center;
-
-            flex-shrink: 0;
 
             border-radius: 12px;
 
@@ -763,37 +716,24 @@ const getReportPage = async (req, res) => {
 
         .section-heading h2 {
             margin: 0;
-
             color: var(--text);
-
             font-size: 20px;
-
-            line-height: 1.2;
         }
 
         .section-heading p {
             margin: 3px 0 0;
-
             color: var(--muted);
-
             font-size: 12px;
         }
 
-        /* =========================
-           CROP INFORMATION
-        ========================= */
-
         .details-grid {
             display: grid;
-
             grid-template-columns: repeat(2, 1fr);
-
             gap: 14px;
         }
 
         .detail-box {
             padding: 16px 17px;
-
             border-radius: 12px;
 
             background:
@@ -808,140 +748,80 @@ const getReportPage = async (req, res) => {
 
         .detail-label {
             display: block;
-
             margin-bottom: 4px;
-
             color: #728078;
-
             font-size: 11px;
-
             font-weight: 750;
-
-            letter-spacing: 0.7px;
-
             text-transform: uppercase;
         }
 
         .detail-value {
             display: block;
-
             color: var(--text);
-
             font-size: 16px;
-
             font-weight: 750;
-
-            word-break: break-word;
         }
-
-        /* =========================
-           SENSOR SECTION
-        ========================= */
 
         .sensor-grid {
             display: grid;
-
             grid-template-columns: repeat(3, 1fr);
-
             gap: 15px;
         }
 
         .sensor-card {
             min-height: 140px;
-
             padding: 19px;
-
             border-radius: 15px;
-
             border: 1px solid;
-
             display: flex;
-
             flex-direction: column;
-
             justify-content: center;
         }
 
         .sensor-card.temperature {
-            background:
-                linear-gradient(
-                    135deg,
-                    #fff6f2,
-                    #fdf0eb
-                );
-
+            background: linear-gradient(135deg, #fff6f2, #fdf0eb);
             border-color: #f0ddd6;
         }
 
         .sensor-card.humidity {
-            background:
-                linear-gradient(
-                    135deg,
-                    #f1f8ff,
-                    #edf5fd
-                );
-
+            background: linear-gradient(135deg, #f1f8ff, #edf5fd);
             border-color: #dce9f5;
         }
 
         .sensor-card.soil {
-            background:
-                linear-gradient(
-                    135deg,
-                    #f5f8ed,
-                    #eff5e6
-                );
-
+            background: linear-gradient(135deg, #f5f8ed, #eff5e6);
             border-color: #dfe8d2;
         }
 
         .sensor-icon {
             font-size: 25px;
-
             margin-bottom: 9px;
         }
 
         .sensor-name {
             color: #53645b;
-
             font-size: 12px;
-
             font-weight: 650;
         }
 
         .sensor-value {
             margin-top: 2px;
-
             color: var(--text);
-
             font-size: 24px;
-
-            line-height: 1.15;
-
             font-weight: 800;
         }
 
-        /* =========================
-           INSIGHTS
-        ========================= */
-
         .insight-grid {
             display: grid;
-
             grid-template-columns: repeat(2, 1fr);
-
             gap: 18px;
-
             margin-top: 18px;
         }
 
         .insight-card {
             min-height: 190px;
-
             padding: 23px;
-
             border-radius: 18px;
-
             border: 1px solid;
         }
 
@@ -967,11 +847,8 @@ const getReportPage = async (req, res) => {
 
         .insight-heading {
             display: flex;
-
             align-items: center;
-
             gap: 11px;
-
             margin-bottom: 15px;
         }
 
@@ -980,28 +857,19 @@ const getReportPage = async (req, res) => {
             height: 40px;
 
             display: flex;
-
             align-items: center;
             justify-content: center;
-
-            flex-shrink: 0;
 
             border-radius: 50%;
 
             background: white;
-
-            box-shadow:
-                0 2px 8px rgba(0,0,0,0.06);
 
             font-size: 19px;
         }
 
         .insight-heading h2 {
             margin: 0;
-
             font-size: 19px;
-
-            line-height: 1.2;
         }
 
         .why .insight-heading h2 {
@@ -1022,40 +890,25 @@ const getReportPage = async (req, res) => {
 
         .insight-text {
             margin: 0;
-
             color: #425149;
-
             font-size: 14px;
-
             line-height: 1.75;
         }
 
         .prevention-list {
             list-style: none;
-
             margin: 0;
-
             padding: 0;
         }
 
         .prevention-list li {
             display: flex;
-
             align-items: flex-start;
-
             gap: 9px;
-
             margin-bottom: 10px;
-
             color: #425149;
-
             font-size: 14px;
-
             line-height: 1.55;
-        }
-
-        .prevention-list li:last-child {
-            margin-bottom: 0;
         }
 
         .check {
@@ -1069,8 +922,6 @@ const getReportPage = async (req, res) => {
 
             flex-shrink: 0;
 
-            margin-top: 1px;
-
             border-radius: 50%;
 
             background: #e9dcff;
@@ -1082,67 +933,42 @@ const getReportPage = async (req, res) => {
             font-weight: 800;
         }
 
-        /* =========================
-           REPORT DETAILS
-        ========================= */
-
         .report-details {
             display: grid;
-
             grid-template-columns: repeat(2, 1fr);
-
             gap: 13px;
         }
 
         .report-detail {
             padding: 15px 17px;
-
             border-radius: 11px;
-
             background: #f8faf8;
-
             border: 1px solid #e2e9e3;
         }
 
         .report-detail span {
             display: block;
-
             margin-bottom: 4px;
-
             color: #748078;
-
             font-size: 11px;
-
             font-weight: 650;
         }
 
         .report-detail strong {
             display: block;
-
             color: var(--text);
-
             font-size: 13px;
-
             word-break: break-word;
         }
 
-        /* =========================
-           FOOTER
-        ========================= */
-
         .footer {
             position: relative;
-
             overflow: hidden;
-
             margin-top: 25px;
-
             padding: 35px 25px 31px;
-
             text-align: center;
 
             border-radius: 20px;
-
             border: 1px solid #cfe5d2;
 
             background:
@@ -1153,30 +979,6 @@ const getReportPage = async (req, res) => {
                 );
         }
 
-        .footer::before,
-        .footer::after {
-            content: "";
-
-            position: absolute;
-
-            bottom: -80px;
-
-            width: 260px;
-            height: 150px;
-
-            border-radius: 50%;
-
-            background: rgba(116, 185, 104, 0.13);
-        }
-
-        .footer::before {
-            left: -80px;
-        }
-
-        .footer::after {
-            right: -80px;
-        }
-
         .footer-content {
             position: relative;
             z-index: 2;
@@ -1184,46 +986,31 @@ const getReportPage = async (req, res) => {
 
         .footer-leaf {
             font-size: 32px;
-
             margin-bottom: 6px;
         }
 
         .footer-title {
             margin: 0;
-
             color: var(--green-dark);
-
             font-family: Georgia, serif;
-
             font-size: 25px;
-
             font-style: italic;
         }
 
         .footer-text {
             margin: 8px 0 0;
-
             color: #5c7165;
-
             font-size: 13px;
         }
 
         .footer-brand {
             margin-top: 18px;
-
             color: var(--green-dark);
-
             font-size: 16px;
-
             font-weight: 800;
         }
 
-        /* =========================
-           TABLET
-        ========================= */
-
         @media (max-width: 900px) {
-
             .hero {
                 padding-left: 35px;
                 padding-right: 35px;
@@ -1243,69 +1030,44 @@ const getReportPage = async (req, res) => {
             }
         }
 
-        /* =========================
-           MOBILE
-        ========================= */
-
         @media (max-width: 720px) {
-
             .container {
                 width: calc(100% - 16px);
             }
 
             .hero {
                 min-height: 330px;
-
                 margin-left: -8px;
                 margin-right: -8px;
-
-                padding:
-                    22px
-                    18px
-                    85px;
+                padding: 22px 18px 85px;
             }
 
             .top-row {
                 flex-direction: column;
-
                 gap: 18px;
             }
 
             .report-id {
                 width: 100%;
-
                 min-width: 0;
             }
 
             .hero-title {
                 margin-top: 45px;
-
                 font-size: 36px;
-
                 line-height: 1.05;
             }
 
             .hero-subtitle {
                 font-size: 15px;
-
-                line-height: 1.5;
-            }
-
-            .hero-description {
-                font-size: 12px;
-
                 line-height: 1.5;
             }
 
             .diagnosis-card {
                 grid-template-columns: 1fr;
-
                 gap: 20px;
-
                 margin-top: -55px;
-
                 padding: 14px;
-
                 border-radius: 18px;
             }
 
@@ -1321,33 +1083,16 @@ const getReportPage = async (req, res) => {
                 font-size: 31px;
             }
 
-            .diagnosis-description {
-                font-size: 14px;
-            }
-
             .confidence-area {
                 display: grid;
-
                 grid-template-columns: 125px 1fr;
-
                 align-items: center;
-
                 gap: 17px;
-
                 padding: 5px 8px 8px;
-            }
-
-            .confidence-label {
-                text-align: center;
-            }
-
-            .risk-box {
-                width: 100%;
             }
 
             .section-card {
                 padding: 19px 16px;
-
                 border-radius: 15px;
             }
 
@@ -1360,48 +1105,13 @@ const getReportPage = async (req, res) => {
                 grid-template-columns: 1fr;
             }
 
-            .sensor-card {
-                min-height: 105px;
-
-                display: grid;
-
-                grid-template-columns: 44px 1fr;
-
-                grid-template-rows: auto auto;
-
-                align-items: center;
-
-                column-gap: 9px;
-
-                padding: 14px 16px;
-            }
-
-            .sensor-icon {
-                grid-row: 1 / 3;
-
-                margin: 0;
-
-                text-align: center;
-            }
-
-            .sensor-name,
-            .sensor-value {
-                grid-column: 2;
-            }
-
-            .sensor-value {
-                font-size: 22px;
-            }
-
             .insight-grid {
                 grid-template-columns: 1fr;
-
                 gap: 14px;
             }
 
             .insight-card {
                 min-height: auto;
-
                 padding: 19px;
             }
 
@@ -1409,14 +1119,9 @@ const getReportPage = async (req, res) => {
                 padding-left: 17px;
                 padding-right: 17px;
             }
-
-            .footer-title {
-                font-size: 22px;
-            }
         }
 
         @media (max-width: 390px) {
-
             .brand-name {
                 font-size: 19px;
             }
@@ -1432,10 +1137,6 @@ const getReportPage = async (req, res) => {
             .confidence-area {
                 grid-template-columns: 1fr;
             }
-
-            .confidence-label {
-                margin-top: -5px;
-            }
         }
 
     </style>
@@ -1447,11 +1148,6 @@ const getReportPage = async (req, res) => {
 <div class="page">
 
     <div class="container">
-
-
-        <!-- =========================
-             HERO
-        ========================= -->
 
         <header class="hero">
 
@@ -1479,7 +1175,6 @@ const getReportPage = async (req, res) => {
 
                     </div>
 
-
                     <div class="report-id">
 
                         <span class="report-id-label">
@@ -1493,7 +1188,6 @@ const getReportPage = async (req, res) => {
                     </div>
 
                 </div>
-
 
                 <h1 class="hero-title">
                     Crop Health Report
@@ -1511,13 +1205,7 @@ const getReportPage = async (req, res) => {
 
         </header>
 
-
-        <!-- =========================
-             DIAGNOSIS
-        ========================= -->
-
         <section class="diagnosis-card">
-
 
             <div class="crop-image-box">
 
@@ -1532,7 +1220,6 @@ const getReportPage = async (req, res) => {
                 </div>
 
             </div>
-
 
             <div class="diagnosis-content">
 
@@ -1550,13 +1237,12 @@ const getReportPage = async (req, res) => {
 
                 <p class="diagnosis-description">
                     ${
-                      report.whyItHappens ||
-                      "The detected condition requires attention based on the crop analysis."
+                        report.whyItHappens ||
+                        "The detected condition requires attention based on the crop analysis."
                     }
                 </p>
 
             </div>
-
 
             <div class="confidence-area">
 
@@ -1576,20 +1262,13 @@ const getReportPage = async (req, res) => {
 
                 </div>
 
-
                 <div class="risk-box ${riskClass}">
                     ⚠ &nbsp; ${riskLevel} Risk
                 </div>
 
             </div>
 
-
         </section>
-
-
-        <!-- =========================
-             CROP INFORMATION
-        ========================= -->
 
         <section class="section-card">
 
@@ -1613,7 +1292,6 @@ const getReportPage = async (req, res) => {
 
             </div>
 
-
             <div class="details-grid">
 
                 <div class="detail-box">
@@ -1627,7 +1305,6 @@ const getReportPage = async (req, res) => {
                     </span>
 
                 </div>
-
 
                 <div class="detail-box">
 
@@ -1644,11 +1321,6 @@ const getReportPage = async (req, res) => {
             </div>
 
         </section>
-
-
-        <!-- =========================
-             ENVIRONMENTAL CONDITIONS
-        ========================= -->
 
         <section class="section-card">
 
@@ -1672,9 +1344,7 @@ const getReportPage = async (req, res) => {
 
             </div>
 
-
             <div class="sensor-grid">
-
 
                 <div class="sensor-card temperature">
 
@@ -1692,7 +1362,6 @@ const getReportPage = async (req, res) => {
 
                 </div>
 
-
                 <div class="sensor-card humidity">
 
                     <div class="sensor-icon">
@@ -1708,7 +1377,6 @@ const getReportPage = async (req, res) => {
                     </strong>
 
                 </div>
-
 
                 <div class="sensor-card soil">
 
@@ -1726,18 +1394,11 @@ const getReportPage = async (req, res) => {
 
                 </div>
 
-
             </div>
 
         </section>
 
-
-        <!-- =========================
-             INSIGHTS
-        ========================= -->
-
         <div class="insight-grid">
-
 
             <section class="insight-card why">
 
@@ -1755,13 +1416,12 @@ const getReportPage = async (req, res) => {
 
                 <p class="insight-text">
                     ${
-                      report.whyItHappens ||
-                      "No explanation is available for this report."
+                        report.whyItHappens ||
+                        "No explanation is available for this report."
                     }
                 </p>
 
             </section>
-
 
             <section class="insight-card spread">
 
@@ -1779,13 +1439,12 @@ const getReportPage = async (req, res) => {
 
                 <p class="insight-text">
                     ${
-                      report.expectedSpread ||
-                      "No spread information is available for this report."
+                        report.expectedSpread ||
+                        "No spread information is available for this report."
                     }
                 </p>
 
             </section>
-
 
             <section class="insight-card solution">
 
@@ -1803,13 +1462,12 @@ const getReportPage = async (req, res) => {
 
                 <p class="insight-text">
                     ${
-                      report.solution ||
-                      "No recommended solution is available for this report."
+                        report.solution ||
+                        "No recommended solution is available for this report."
                     }
                 </p>
 
             </section>
-
 
             <section class="insight-card prevention">
 
@@ -1826,20 +1484,12 @@ const getReportPage = async (req, res) => {
                 </div>
 
                 <ul class="prevention-list">
-
                     ${preventionList}
-
                 </ul>
 
             </section>
 
-
         </div>
-
-
-        <!-- =========================
-             REPORT DETAILS
-        ========================= -->
 
         <section class="section-card">
 
@@ -1863,9 +1513,7 @@ const getReportPage = async (req, res) => {
 
             </div>
 
-
             <div class="report-details">
-
 
                 <div class="report-detail">
 
@@ -1879,7 +1527,6 @@ const getReportPage = async (req, res) => {
 
                 </div>
 
-
                 <div class="report-detail">
 
                     <span>
@@ -1891,7 +1538,6 @@ const getReportPage = async (req, res) => {
                     </strong>
 
                 </div>
-
 
                 <div class="report-detail">
 
@@ -1905,7 +1551,6 @@ const getReportPage = async (req, res) => {
 
                 </div>
 
-
                 <div class="report-detail">
 
                     <span>
@@ -1918,15 +1563,9 @@ const getReportPage = async (req, res) => {
 
                 </div>
 
-
             </div>
 
         </section>
-
-
-        <!-- =========================
-             FOOTER
-        ========================= -->
 
         <footer class="footer">
 
@@ -1952,7 +1591,6 @@ const getReportPage = async (req, res) => {
 
         </footer>
 
-
     </div>
 
 </div>
@@ -1960,11 +1598,15 @@ const getReportPage = async (req, res) => {
 </body>
 
 </html>
-    `);
-  } catch (error) {
-    console.error("Disease Report Page Error:", error);
+        `);
 
-    return res.status(404).send(`
+    } catch (error) {
+        console.error(
+            "Disease Report Page Error:",
+            error
+        );
+
+        return res.status(404).send(`
 <!DOCTYPE html>
 
 <html lang="en">
@@ -1980,84 +1622,17 @@ const getReportPage = async (req, res) => {
 
     <title>Report Not Found</title>
 
-    <style>
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-
-            min-height: 100vh;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            padding: 20px;
-
-            background: #f3f8f5;
-
-            font-family: Arial, sans-serif;
-
-            color: #173126;
-        }
-
-        .error-card {
-            width: min(100%, 500px);
-
-            padding: 35px 25px;
-
-            text-align: center;
-
-            background: white;
-
-            border: 1px solid #dce9df;
-
-            border-radius: 18px;
-
-            box-shadow:
-                0 8px 25px rgba(0,0,0,0.07);
-        }
-
-        .error-icon {
-            font-size: 42px;
-
-            margin-bottom: 12px;
-        }
-
-        h1 {
-            margin: 0 0 10px;
-
-            color: #1f5132;
-
-            font-size: 24px;
-        }
-
-        p {
-            margin: 0;
-
-            color: #66736b;
-
-            font-size: 14px;
-
-            line-height: 1.6;
-        }
-
-    </style>
-
 </head>
 
 <body>
 
-    <div class="error-card">
-
-        <div class="error-icon">
-            📄
-        </div>
+    <div style="
+        max-width:500px;
+        margin:100px auto;
+        padding:30px;
+        text-align:center;
+        font-family:Arial,sans-serif;
+    ">
 
         <h1>
             Disease Report Not Found
@@ -2072,13 +1647,13 @@ const getReportPage = async (req, res) => {
 </body>
 
 </html>
-    `);
-  }
+        `);
+    }
 };
 
 module.exports = {
-  analyzeDisease,
-  getMyReports,
-  getReportById,
-  getReportPage,
+    analyzeDisease,
+    getMyReports,
+    getReportById,
+    getReportPage,
 };
