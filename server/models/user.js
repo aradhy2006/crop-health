@@ -1,17 +1,17 @@
-const mongoose=require("mongoose");
-const userschema=new mongoose.Schema(
+const mongoose = require("mongoose");
+
+const userSchema = new mongoose.Schema(
     {
-       name: {
+        name: {
             type: String,
             required: true,
             trim: true
         },
 
-        email: {
+        mobile: {
             type: String,
             required: true,
             unique: true,
-            lowercase: true,
             trim: true
         },
 
@@ -21,14 +21,30 @@ const userschema=new mongoose.Schema(
             minlength: 6
         },
 
+        mobileVerified: {
+            type: Boolean,
+            default: false
+        },
+
         role: {
             type: String,
-            enum: ["farmer"],
-            default: "farmer"
+            enum: ["FARMER"],
+            default: "FARMER"
+        },
+
+        language: {
+            type: String,
+            default: "en"
+        },
+
+        isActive: {
+            type: Boolean,
+            default: true
         }
     },
     {
         timestamps: true
     }
 );
-module.exports = mongoose.model("User",userschema);
+
+module.exports = mongoose.model("User", userSchema);

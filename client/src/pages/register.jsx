@@ -8,9 +8,13 @@ function Register() {
 
     const [formData, setFormData] = useState({
         name: "",
-        email: "",
+        mobile: "",
         password: ""
     });
+
+    const [otp, setOtp] = useState("");
+    const [otpSent, setOtpSent] = useState(false);
+    const [otpVerified, setOtpVerified] = useState(false);
 
     const [error, setError] = useState("");
     const [message, setMessage] = useState("");
@@ -24,26 +28,96 @@ function Register() {
         }));
     };
 
+    // Send OTP
+    const handleSendOTP = async () => {
+        setError("");
+        setMessage("");
+
+        if (!formData.mobile) {
+            setError("Please enter your mobile number.");
+            return;
+        }
+
+        if (!/^[0-9]{10}$/.test(formData.mobile)) {
+            setError("Please enter a valid 10-digit mobile number.");
+            return;
+        }
+
+        try {
+            const response = await authService.sendOTP(
+                formData.mobile
+            );
+
+            setOtpSent(true);
+            setMessage(response.message);
+
+        } catch (error) {
+            setError(
+                error.response?.data?.message ||
+                "Unable to send OTP."
+            );
+        }
+    };
+
+    // Verify OTP
+    const handleVerifyOTP = async () => {
+        setError("");
+        setMessage("");
+
+        if (!otp) {
+            setError("Please enter the OTP.");
+            return;
+        }
+
+        try {
+            const response = await authService.verifyOTP(
+                formData.mobile,
+                otp
+            );
+
+            setOtpVerified(true);
+            setMessage(response.message);
+
+        } catch (error) {
+            setError(
+                error.response?.data?.message ||
+                "Invalid OTP."
+            );
+        }
+    };
+
+    // Register user
     const handleSubmit = async (event) => {
         event.preventDefault();
 
         setError("");
         setMessage("");
 
+        if (!otpVerified) {
+            setError("Please verify your mobile number first.");
+            return;
+        }
+
         try {
-            const response = await authService.register(formData);
+            const response =
+                await authService.register(formData);
 
             setMessage(response.message);
 
             setFormData({
                 name: "",
-                email: "",
+                mobile: "",
                 password: ""
             });
+
+            setOtp("");
+            setOtpSent(false);
+            setOtpVerified(false);
 
             setTimeout(() => {
                 navigate("/login");
             }, 1000);
+
         } catch (error) {
             setError(
                 error.response?.data?.message ||
@@ -76,6 +150,7 @@ function Register() {
 
                 <form onSubmit={handleSubmit}>
 
+                    {/* Name */}
                     <div className="form-group">
                         <label>Name</label>
 
@@ -89,19 +164,66 @@ function Register() {
                         />
                     </div>
 
+                    {/* Mobile */}
                     <div className="form-group">
-                        <label>Email</label>
+                        <label>Mobile Number</label>
 
                         <input
-                            type="email"
-                            name="email"
-                            value={formData.email}
+                            type="tel"
+                            name="mobile"
+                            value={formData.mobile}
                             onChange={handleChange}
-                            placeholder="Enter your email"
+                            placeholder="Enter 10-digit mobile number"
+                            maxLength="10"
                             required
+                            disabled={otpVerified}
                         />
                     </div>
 
+                    {/* Send OTP */}
+                    {!otpVerified && (
+                        <button
+                            type="button"
+                            className="otp-button"
+                            onClick={handleSendOTP}
+                        >
+                            {otpSent ? "Resend OTP" : "Send OTP"}
+                        </button>
+                    )}
+
+                    {/* OTP */}
+                    {otpSent && !otpVerified && (
+                        <div className="form-group otp-group">
+                            <label>Enter OTP</label>
+
+                            <input
+                                type="text"
+                                value={otp}
+                                onChange={(event) =>
+                                    setOtp(event.target.value)
+                                }
+                                placeholder="Enter 6-digit OTP"
+                                maxLength="6"
+                            />
+
+                            <button
+                                type="button"
+                                className="verify-button"
+                                onClick={handleVerifyOTP}
+                            >
+                                Verify OTP
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Verified message */}
+                    {otpVerified && (
+                        <div className="verified-message">
+                            ✓ Mobile number verified
+                        </div>
+                    )}
+
+                    {/* Password */}
                     <div className="form-group">
                         <label>Password</label>
 
@@ -116,16 +238,20 @@ function Register() {
                         />
                     </div>
 
+                    {/* Register */}
                     <button
                         type="submit"
                         className="register-button"
+                        disabled={!otpVerified}
                     >
                         Register
                     </button>
+
                 </form>
 
                 <p className="login-text">
                     Already have an account?{" "}
+
                     <button
                         type="button"
                         className="login-link"

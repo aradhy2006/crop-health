@@ -142,3 +142,21 @@
 .login-form-group input::placeholder {
     color: #666666;
 }
+.login-card,
+.login-card h1,
+.login-card p,
+.login-card label {
+    color: #000000;
+}
+
+.login-subtitle {
+    color: #333333;
+}
+
+.login-form-group input {
+    color: #000000;
+}
+
+.login-form-group input::placeholder {
+    color: #666666;
+}

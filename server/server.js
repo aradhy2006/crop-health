@@ -1,14 +1,26 @@
-require("dotenv").config(); 
-const app = require("./app");
-const connectdb = require("./config/database");
+require("dotenv").config();
 
-// Use env PORT or default to 5000
+const app = require("./app");
+const mongoose = require("mongoose");
+
 const PORT = process.env.PORT || 5000;
 
-// Connect to MongoDB
-connectdb();
+mongoose
+    .connect(process.env.MONGO_URI)
+    .then(() => {
+        console.log("MongoDB connected");
 
-// Listen on the dynamic PORT
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+        app.listen(PORT, () => {
+            console.log(
+                `Server running on http://localhost:${PORT}`
+            );
+        });
+    })
+    .catch((error) => {
+        console.error(
+            "MongoDB connection failed:",
+            error.message
+        );
+
+        process.exit(1);
+    });

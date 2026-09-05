@@ -167,3 +167,40 @@
 .form-group input::placeholder {
     color: #666666;
 }
+.otp-button,
+.verify-button {
+    width: 100%;
+    padding: 13px;
+    border: none;
+    border-radius: 8px;
+    background-color: #43a047;
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 18px;
+}
+
+.otp-button:hover,
+.verify-button:hover {
+    background-color: #2e7d32;
+}
+
+.otp-group {
+    margin-top: 5px;
+}
+
+.verified-message {
+    margin-bottom: 20px;
+    padding: 11px 12px;
+    border-radius: 7px;
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.form-group input:disabled {
+    background-color: #f2f2f2;
+    cursor: not-allowed;
+}

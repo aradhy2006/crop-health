@@ -7,7 +7,7 @@ function Login() {
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
-        email: "",
+        mobile: "",
         password: ""
     });
 
@@ -27,16 +27,30 @@ function Login() {
         event.preventDefault();
 
         setError("");
+
+        if (!/^[0-9]{10}$/.test(formData.mobile)) {
+            setError(
+                "Please enter a valid 10-digit mobile number."
+            );
+            return;
+        }
+
         setLoading(true);
 
         try {
             await authService.login(formData);
+
             navigate("/dashboard");
+
         } catch (error) {
+            console.error("LOGIN ERROR:", error);
+
             setError(
                 error.response?.data?.message ||
+                error.message ||
                 "Login failed"
             );
+
         } finally {
             setLoading(false);
         }
@@ -44,6 +58,7 @@ function Login() {
 
     return (
         <div className="login-page">
+
             <div className="login-card">
 
                 <h1>Welcome Back</h1>
@@ -61,19 +76,24 @@ function Login() {
                 <form onSubmit={handleSubmit}>
 
                     <div className="login-form-group">
-                        <label>Email</label>
+
+                        <label>Mobile Number</label>
 
                         <input
-                            type="email"
-                            name="email"
-                            value={formData.email}
+                            type="tel"
+                            name="mobile"
+                            value={formData.mobile}
                             onChange={handleChange}
-                            placeholder="Enter your email"
+                            placeholder="Enter 10-digit mobile number"
+                            maxLength="10"
+                            inputMode="numeric"
                             required
                         />
+
                     </div>
 
                     <div className="login-form-group">
+
                         <label>Password</label>
 
                         <input
@@ -84,6 +104,7 @@ function Login() {
                             placeholder="Enter your password"
                             required
                         />
+
                     </div>
 
                     <button
@@ -91,23 +112,29 @@ function Login() {
                         className="login-button"
                         disabled={loading}
                     >
-                        {loading ? "Logging in..." : "Login"}
+                        {loading
+                            ? "Logging in..."
+                            : "Login"}
                     </button>
 
                 </form>
 
                 <p className="register-text">
                     Don't have an account?{" "}
+
                     <button
                         type="button"
                         className="register-link"
-                        onClick={() => navigate("/register")}
+                        onClick={() =>
+                            navigate("/register")
+                        }
                     >
                         Register
                     </button>
                 </p>
 
             </div>
+
         </div>
     );
 }
