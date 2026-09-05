@@ -20,6 +20,8 @@ function Dashboard() {
     const deviceId = "ESP32-003";
 
     useEffect(() => {
+        let sensorInterval;
+
         const loadDashboardData = async () => {
             try {
                 const farmResponse = await farmService.getMyFarms();
@@ -71,7 +73,29 @@ function Dashboard() {
             }
         };
 
+        const loadSensorData = async () => {
+            try {
+                const sensorResponse =
+                    await sensorService.getLatestReading(deviceId);
+
+                setSensorReading(sensorResponse.reading);
+            } catch (sensorError) {
+                console.error(
+                    "Unable to refresh sensor data:",
+                    sensorError
+                );
+            }
+        };
+
         loadDashboardData();
+
+        sensorInterval = setInterval(() => {
+            loadSensorData();
+        }, 10000);
+
+        return () => {
+            clearInterval(sensorInterval);
+        };
     }, []);
 
     const getRiskClass = (riskLevel) => {
@@ -110,7 +134,7 @@ function Dashboard() {
         return new Date(date).toLocaleDateString("en-GB", {
             day: "2-digit",
             month: "short",
-            year: "numeric",
+            year: "numeric"
         });
     };
 
@@ -121,7 +145,7 @@ function Dashboard() {
 
         return new Date(date).toLocaleTimeString("en-US", {
             hour: "2-digit",
-            minute: "2-digit",
+            minute: "2-digit"
         });
     };
 
@@ -129,7 +153,6 @@ function Dashboard() {
 
     return (
         <div className="dashboard">
-
             <Navbar />
 
             <main className="dashboard-container">
@@ -420,6 +443,7 @@ function Dashboard() {
                                 <div className="farm-detail-list">
 
                                     <div className="farm-detail-row">
+
                                         <span>⌂</span>
 
                                         <label>
@@ -429,9 +453,11 @@ function Dashboard() {
                                         <strong>
                                             {farm.farmName}
                                         </strong>
+
                                     </div>
 
                                     <div className="farm-detail-row">
+
                                         <span>⌖</span>
 
                                         <label>
@@ -441,9 +467,11 @@ function Dashboard() {
                                         <strong>
                                             {farm.location}
                                         </strong>
+
                                     </div>
 
                                     <div className="farm-detail-row">
+
                                         <span>◇</span>
 
                                         <label>
@@ -456,9 +484,11 @@ function Dashboard() {
                                                 ? ` (${farm.cropVariety})`
                                                 : ""}
                                         </strong>
+
                                     </div>
 
                                     <div className="farm-detail-row">
+
                                         <span>♧</span>
 
                                         <label>
@@ -469,10 +499,12 @@ function Dashboard() {
                                             {farm.cropStage ||
                                                 "--"}
                                         </strong>
+
                                     </div>
 
                                     <div className="farm-detail-row">
-                                        <span>▱</span>
+
+                                        <span>▷</span>
 
                                         <label>
                                             Soil Type
@@ -482,6 +514,7 @@ function Dashboard() {
                                             {farm.soilType ||
                                                 "--"}
                                         </strong>
+
                                     </div>
 
                                 </div>
@@ -514,6 +547,7 @@ function Dashboard() {
                                 </button>
 
                             </div>
+
                         )}
 
                     </div>
@@ -545,11 +579,13 @@ function Dashboard() {
                                         : "sensor-offline"
                                 }`}
                             >
+
                                 <i></i>
 
                                 {sensorReading
                                     ? "Online"
                                     : "Offline"}
+
                             </span>
 
                         </div>
@@ -573,7 +609,7 @@ function Dashboard() {
                                         <div className="sensor-widget-top">
 
                                             <span className="sensor-widget-icon purple">
-                                                ♨
+                                                ✨
                                             </span>
 
                                             <div>
@@ -598,12 +634,14 @@ function Dashboard() {
                                                 viewBox="0 0 240 55"
                                                 preserveAspectRatio="none"
                                             >
+
                                                 <path
                                                     d="M0 38 C15 25, 25 45, 40 34 S65 24, 80 36 S105 40, 120 26 S145 22, 160 31 S185 45, 200 27 S220 22, 240 34"
                                                     fill="none"
                                                     stroke="currentColor"
                                                     strokeWidth="3"
                                                 />
+
                                             </svg>
 
                                         </div>
@@ -642,12 +680,14 @@ function Dashboard() {
                                                 viewBox="0 0 240 55"
                                                 preserveAspectRatio="none"
                                             >
+
                                                 <path
                                                     d="M0 39 C20 45, 27 49, 42 32 S65 22, 78 37 S104 44, 120 27 S145 19, 160 31 S182 37, 200 25 S225 34, 240 20"
                                                     fill="none"
                                                     stroke="currentColor"
                                                     strokeWidth="3"
                                                 />
+
                                             </svg>
 
                                         </div>
@@ -686,12 +726,14 @@ function Dashboard() {
                                                 viewBox="0 0 240 55"
                                                 preserveAspectRatio="none"
                                             >
+
                                                 <path
                                                     d="M0 40 C20 33, 30 27, 45 29 S70 18, 90 22 S110 25, 130 20 S155 23, 175 30 S195 18, 210 22 S225 25, 240 18"
                                                     fill="none"
                                                     stroke="currentColor"
                                                     strokeWidth="3"
                                                 />
+
                                             </svg>
 
                                         </div>
@@ -711,12 +753,18 @@ function Dashboard() {
 
                                     <div>
                                         <span>◷</span>
-                                        Last Updated: 2 min ago
+                                        Last Updated:{" "}
+                                        {sensorReading?.recordedAt
+                                            ? formatTime(
+                                                sensorReading.recordedAt
+                                            )
+                                            : "--"}
                                     </div>
 
                                 </div>
 
                             </div>
+
                         )}
 
                     </div>
@@ -798,6 +846,7 @@ function Dashboard() {
                                             latestReport.riskLevel
                                         )}`}
                                     >
+
                                         <span>
                                             {getRiskIcon(
                                                 latestReport.riskLevel
@@ -807,6 +856,7 @@ function Dashboard() {
                                         {latestReport.riskLevel ||
                                             "Low"}{" "}
                                         Risk
+
                                     </span>
 
                                 </div>
@@ -820,6 +870,7 @@ function Dashboard() {
                                         </span>
 
                                         <div>
+
                                             <small>
                                                 Crop
                                             </small>
@@ -828,6 +879,7 @@ function Dashboard() {
                                                 {latestReport.crop ||
                                                     "--"}
                                             </strong>
+
                                         </div>
 
                                     </div>
@@ -837,10 +889,11 @@ function Dashboard() {
                                     <div className="report-meta-item">
 
                                         <span className="report-meta-icon green">
-                                            ♢
+                                            ✢
                                         </span>
 
                                         <div>
+
                                             <small>
                                                 Confidence
                                             </small>
@@ -849,6 +902,7 @@ function Dashboard() {
                                                 {latestReport.confidence ??
                                                     "--"}%
                                             </strong>
+
                                         </div>
 
                                     </div>
@@ -862,6 +916,7 @@ function Dashboard() {
                                         </span>
 
                                         <div>
+
                                             <small>
                                                 Detected On
                                             </small>
@@ -875,6 +930,7 @@ function Dashboard() {
                                                     latestReport.createdAt
                                                 )}
                                             </strong>
+
                                         </div>
 
                                     </div>
@@ -908,9 +964,11 @@ function Dashboard() {
                                     )
                                 }
                             >
+
                                 <span>◉</span>
                                 View Report
                                 <strong>›</strong>
+
                             </button>
 
                         </div>
@@ -941,6 +999,7 @@ function Dashboard() {
                             </button>
 
                         </div>
+
                     )}
 
                 </section>
