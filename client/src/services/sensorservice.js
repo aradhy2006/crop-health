@@ -1,6 +1,21 @@
 import api from "./api";
 
 class SensorService {
+    async getMyDevice() {
+        const token = localStorage.getItem("token");
+
+        const response = await api.get(
+            "/sensors/my-device",
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
+
+        return response.data;
+    }
+
     async getLatestReading(deviceId) {
         const token = localStorage.getItem("token");
 
@@ -17,4 +32,4 @@ class SensorService {
     }
 }
 
-export default new SensorService(); 
+export default new SensorService();

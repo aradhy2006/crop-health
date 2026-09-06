@@ -394,7 +394,7 @@ function Reports() {
                                         <div className="report-card-top">
                                             <div className="report-image-wrapper">
                                                 <img
-                                                    src={report.image}
+                                                    src={`${import.meta.env.VITE_API_URL.replace(/\/api$/, "")}/${report.image.replace(/\\/g, "/").replace(/^https?:\/\/[^/]+\/+/, "")}`}
                                                     alt={`${report.crop || "Crop"} analysis`}
                                                     className="report-image"
                                                 />

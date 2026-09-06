@@ -1,4 +1,5 @@
 const DiseaseReport = require("../models/diseasereport");
+const Farm = require("../models/farm");
 const QRCode = require("qrcode");
 const axios = require("axios");
 const FormData = require("form-data");
@@ -21,7 +22,7 @@ class DiseaseDetectionService {
         const report = await DiseaseReport.create({
             farmerId,
             farmId,
-            crop, 
+            crop,
             image: imagePath,
 
             disease: prediction.disease,
@@ -60,7 +61,8 @@ class DiseaseDetectionService {
     }
 
     async getReportById(reportId) {
-        const report = await DiseaseReport.findById(reportId);
+        const report = await DiseaseReport.findById(reportId)
+            .populate("farmId");
 
         if (!report) {
             throw new Error("Disease report not found");
@@ -69,62 +71,124 @@ class DiseaseDetectionService {
         return report;
     }
 
-  async getPrediction(crop, imagePath) {
-    const form = new FormData();
+    async getPrediction(crop, imagePath, sensorReadings) {
+        const form = new FormData();
 
-    form.append(
-        "file",
-        fs.createReadStream(imagePath)
-    );
+        form.append(
+            "file",
+            fs.createReadStream(imagePath)
+        );
 
-    form.append("crop", crop);
+        form.append("crop", crop);
 
-    const response = await axios.post(
-        "http://10.50.170.223:8000/prediction/predict",
-        form,
-        {
-            headers: form.getHeaders(),
-            maxContentLength: Infinity,
-            maxBodyLength: Infinity,
-        }
-    );
+        form.append(
+            "temperature",
+            String(sensorReadings?.temperature ?? 0)
+        );
 
-    const risk =
-        String(response.data.risk || "")
-            .toLowerCase()
-            .replace(/^./, (char) =>
-                char.toUpperCase()
+        form.append(
+            "humidity",
+            String(sensorReadings?.humidity ?? 0)
+        );
+
+        form.append(
+            "soil_moisture",
+            String(
+                sensorReadings?.soilMoisture ??
+                sensorReadings?.soil_moisture ??
+                0
+            )
+        );
+
+        let response;
+
+        try {
+            response = await axios.post(
+                "http://10.253.239.223:8000/prediction/predict",
+                form,
+                {
+                    headers: form.getHeaders(),
+                    maxContentLength: Infinity,
+                    maxBodyLength: Infinity,
+                    timeout:100000,
+                }
             );
+        } catch (error) {
+    console.error("ML API STATUS:", error.response?.status);
+    console.error("ML API DATA:", error.response?.data);
+    console.error("ML API MESSAGE:", error.message);
+    console.error("ML API CODE:", error.code);
 
-    const solution = Array.isArray(response.data.solutions)
-        ? response.data.solutions.join(" ")
-        : String(response.data.solutions || "");
+    throw new Error(
+        error.response?.data?.detail ||
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        "Disease detection service is unavailable"
+    );
+}
 
-    const prevention = Array.isArray(
-        response.data.preventiveMeasures
-    )
-        ? response.data.preventiveMeasures
-        : [];
+        console.log(
+            "ML RESPONSE:",
+            JSON.stringify(response.data, null, 2)
+        );
 
-    return {
-        disease: response.data.disease,
+        if (response.data?.error) {
+            throw new Error(response.data.error);
+        }
 
-        confidence: Number(
-            response.data.confidence*100
-        ),
+        if (!response.data?.disease) {
+            throw new Error(
+                "Disease detection failed: no disease prediction returned"
+            );
+        }
 
-        riskLevel: risk,
+        const confidence =
+            Number(response.data.confidence) * 100;
 
-        whyItHappens:
-            response.data.why,
+        if (Number.isNaN(confidence)) {
+            throw new Error(
+                "Disease detection failed: invalid confidence returned"
+            );
+        }
 
-        expectedSpread:
-            response.data.spreadRisk,
+        const risk = String(response.data.risk || "")
+            .toLowerCase()
+            .replace(/^./, (char) => char.toUpperCase());
 
-        solution: solution,
+        if (!["Low", "Medium", "High"].includes(risk)) {
+            throw new Error(
+                "Disease detection failed: invalid risk level returned"
+            );
+        }
 
-        prevention: prevention,
-    };
-}}
+        const solution =
+            Array.isArray(response.data.solutions)
+                ? response.data.solutions.join(" ")
+                : String(response.data.solutions || "");
+
+        const prevention =
+            Array.isArray(response.data.preventiveMeasures)
+                ? response.data.preventiveMeasures
+                : [];
+
+        return {
+            disease: response.data.disease,
+
+            confidence,
+
+            riskLevel: risk,
+
+            whyItHappens:
+                response.data.why || "",
+
+            expectedSpread:
+                response.data.spreadRisk || "",
+
+            solution,
+
+            prevention,
+        };
+    }
+}
 
 module.exports = new DiseaseDetectionService();

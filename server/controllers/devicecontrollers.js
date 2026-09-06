@@ -15,11 +15,14 @@ const registerDevice = async (req, res) => {
             });
         }
 
-        const device = await deviceService.registerDevice({
-            deviceId,
-            name,
-            farmId
-        });
+        const device = await deviceService.registerDevice(
+    {
+        deviceId,
+        name,
+        farmId
+    },
+    req.user.userId
+);
 
         return res.status(201).json({
             success: true,
@@ -42,7 +45,10 @@ const getDevice = async (req, res) => {
     try {
         const { deviceId } = req.params;
 
-        const device = await deviceService.getDevice(deviceId);
+        const device = await deviceService.getDevice(
+            deviceId,
+            req.user.userId
+        );
 
         return res.status(200).json({
             success: true,

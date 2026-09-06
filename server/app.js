@@ -2,6 +2,7 @@ require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 
 const authRoutes = require("./routes/authroutes");
 const farmRoutes = require("./routes/farmroutes");
@@ -15,16 +16,14 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Authentication
+app.use(
+    "/uploads",
+    express.static(path.join(__dirname, "uploads"))
+);
+
 app.use("/api/auth", authRoutes);
-
-// Farms
 app.use("/api/farms", farmRoutes);
-
-// Disease Detection
 app.use("/api/disease", diseaseRoutes);
-
-// Sensor Data
 app.use("/api/sensors", sensorRoutes);
 
 module.exports = app;

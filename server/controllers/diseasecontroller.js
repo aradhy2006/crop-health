@@ -38,11 +38,17 @@ const analyzeDisease = async (req, res) => {
             });
         }
 
-        // Actual local path of uploaded image
         const localImagePath = path.resolve(req.file.path);
 
-        console.log("Uploaded file path:", req.file.path);
-        console.log("Local image path:", localImagePath);
+        console.log(
+            "Uploaded file path:",
+            req.file.path
+        );
+
+        console.log(
+            "Local image path:",
+            localImagePath
+        );
 
         const sensorReadings = {
             temperature:
@@ -73,7 +79,6 @@ const analyzeDisease = async (req, res) => {
                 sensorReadings,
             });
 
-        // Public URL for report image
         const publicImageUrl =
             `${process.env.PUBLIC_REPORT_BASE_URL}/` +
             `${req.file.path.replace(/\\/g, "/")}`;
@@ -1251,7 +1256,7 @@ const getReportPage = async (req, res) => {
                     <div class="confidence-ring">
 
                         <span class="confidence-number">
-                            ${confidence}%
+                            ${confidence.toFixed(2)}%
                         </span>
 
                     </div>
@@ -1599,7 +1604,6 @@ const getReportPage = async (req, res) => {
 
 </html>
         `);
-
     } catch (error) {
         console.error(
             "Disease Report Page Error:",

@@ -5,10 +5,12 @@ const {
     getDevice
 } = require("../controllers/devicecontrollers");
 
+const authMiddleware = require("../middleware/authmiddleware");
+
 const router = express.Router();
 
-router.post("/", registerDevice);
+router.post("/", authMiddleware, registerDevice);
 
-router.get("/:deviceId", getDevice);
+router.get("/:deviceId", authMiddleware, getDevice);
 
 module.exports = router;

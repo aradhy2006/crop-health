@@ -3,7 +3,7 @@ const Farm = require("../models/farm");
 
 class DeviceService {
 
-    async registerDevice(deviceData) {
+    async registerDevice(deviceData, farmerId) {
 
         const {
             deviceId,
@@ -11,10 +11,13 @@ class DeviceService {
             farmId
         } = deviceData;
 
-        const farm = await Farm.findById(farmId);
+        const farm = await Farm.findOne({
+            _id: farmId,
+            farmerId
+        });
 
         if (!farm) {
-            throw new Error("Farm not found");
+            throw new Error("Farm not found or you do not have access to this farm");
         }
 
         const existingDevice = await Device.findOne({ deviceId });
@@ -32,12 +35,21 @@ class DeviceService {
         return device;
     }
 
-    async getDevice(deviceId) {
+    async getDevice(deviceId, farmerId) {
 
         const device = await Device.findOne({ deviceId });
 
         if (!device) {
             throw new Error("Device not found");
+        }
+
+        const farm = await Farm.findOne({
+            _id: device.farmId,
+            farmerId
+        });
+
+        if (!farm) {
+            throw new Error("You do not have access to this device");
         }
 
         return device;
