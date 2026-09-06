@@ -1,0 +1,170 @@
+{
+  "Tomato": {
+    "Healthy": {
+      "why": "Plant appears healthy with no visible disease symptoms.",
+      "spread_rate": "None",
+      "risk_conditions": "Normal growing conditions.",
+      "solutions": [
+        "Continue regular monitoring.",
+        "Maintain proper irrigation and nutrition."
+      ],
+      "prevention": [
+        "Keep leaves dry when possible.",
+        "Remove damaged plant material.",
+        "Maintain good air circulation."
+      ]
+    },
+    "Early Blight": {
+      "why": "Commonly associated with the fungus Alternaria solani, especially under warm and humid conditions.",
+      "spread_rate": "Medium to High",
+      "risk_conditions": "Warm weather, leaf wetness, high humidity and poor air circulation.",
+      "solutions": [
+        "Remove severely affected leaves.",
+        "Improve air circulation.",
+        "Use appropriate fungicide according to local agricultural guidance."
+      ],
+      "prevention": [
+        "Avoid overhead irrigation.",
+        "Remove infected plant debris.",
+        "Practice crop rotation."
+      ]
+    },
+    "Late Blight": {
+      "why": "Caused by Phytophthora infestans and favored by cool, wet and humid conditions.",
+      "spread_rate": "Very High",
+      "risk_conditions": "Cool temperatures, high humidity, rain and prolonged leaf wetness.",
+      "solutions": [
+        "Remove heavily infected plant parts.",
+        "Improve field ventilation.",
+        "Use appropriate fungicide according to local agricultural guidance."
+      ],
+      "prevention": [
+        "Avoid prolonged leaf wetness.",
+        "Remove infected debris.",
+        "Monitor plants frequently during wet weather."
+      ]
+    },
+    "Leaf Mold": {
+      "why": "Fungal disease favored by high humidity and poor air circulation.",
+      "spread_rate": "Medium",
+      "risk_conditions": "High humidity, warm conditions and poor ventilation.",
+      "solutions": [
+        "Improve ventilation.",
+        "Remove severely affected leaves.",
+        "Use appropriate fungicide according to local agricultural guidance."
+      ],
+      "prevention": [
+        "Avoid excessive humidity.",
+        "Provide adequate plant spacing.",
+        "Avoid unnecessary leaf wetness."
+      ]
+    }
+  },
+  "Potato": {
+    "Healthy": {
+      "why": "Plant appears healthy with no visible disease symptoms.",
+      "spread_rate": "None",
+      "risk_conditions": "Normal growing conditions.",
+      "solutions": [
+        "Continue regular monitoring.",
+        "Maintain balanced irrigation and nutrition."
+      ],
+      "prevention": [
+        "Use healthy planting material.",
+        "Maintain field hygiene.",
+        "Monitor plants regularly."
+      ]
+    },
+    "Early Blight": {
+      "why": "Commonly associated with Alternaria solani and favored by plant stress and warm conditions.",
+      "spread_rate": "Medium",
+      "risk_conditions": "Warm weather, leaf wetness and stressed plants.",
+      "solutions": [
+        "Remove severely affected foliage.",
+        "Maintain adequate plant nutrition.",
+        "Use appropriate fungicide according to local agricultural guidance."
+      ],
+      "prevention": [
+        "Use healthy seed tubers.",
+        "Practice crop rotation.",
+        "Remove infected plant debris."
+      ]
+    },
+    "Late Blight": {
+      "why": "Caused by Phytophthora infestans and can spread rapidly under cool and wet conditions.",
+      "spread_rate": "Very High",
+      "risk_conditions": "Cool weather, rain, high humidity and prolonged leaf wetness.",
+      "solutions": [
+        "Remove heavily infected plant material.",
+        "Improve field drainage and ventilation.",
+        "Use appropriate fungicide according to local agricultural guidance."
+      ],
+      "prevention": [
+        "Use disease-free planting material.",
+        "Monitor fields frequently during wet weather.",
+        "Remove infected debris."
+      ]
+    }
+  },
+  "Onion": {
+    "Healthy": {
+      "why": "Plant appears healthy with no visible disease symptoms.",
+      "spread_rate": "None",
+      "risk_conditions": "Normal growing conditions.",
+      "solutions": [
+        "Continue regular monitoring.",
+        "Maintain proper irrigation and nutrition."
+      ],
+      "prevention": [
+        "Use healthy planting material.",
+        "Maintain field hygiene.",
+        "Monitor plants regularly."
+      ]
+    },
+    "Downy Mildew": {
+      "why": "Fungal disease favored by cool, humid conditions and prolonged leaf wetness.",
+      "spread_rate": "High",
+      "risk_conditions": "High humidity, cool temperatures, rain and prolonged leaf wetness.",
+      "solutions": [
+        "Remove severely affected leaves.",
+        "Improve air circulation.",
+        "Use appropriate fungicide according to local agricultural guidance."
+      ],
+      "prevention": [
+        "Avoid excessive irrigation.",
+        "Maintain adequate plant spacing.",
+        "Reduce prolonged leaf wetness."
+      ]
+    },
+    "Purple Blotch": {
+      "why": "Commonly associated with Alternaria porri and favored by warm, humid conditions.",
+      "spread_rate": "High",
+      "risk_conditions": "Warm temperatures, high humidity and leaf wetness.",
+      "solutions": [
+        "Remove infected leaves.",
+        "Improve air circulation.",
+        "Use appropriate fungicide according to local agricultural guidance."
+      ],
+      "prevention": [
+        "Avoid overhead irrigation.",
+        "Remove infected crop debris.",
+        "Practice crop rotation."
+      ]
+    },
+    "Botrytis Leaf Blight": {
+      "why": "Fungal disease associated with Botrytis species and favored by humid conditions.",
+      "spread_rate": "Medium to High",
+      "risk_conditions": "High humidity, cool conditions and prolonged leaf wetness.",
+      "solutions": [
+        "Remove severely affected leaves.",
+        "Improve ventilation.",
+        "Use appropriate fungicide according to local agricultural guidance."
+      ],
+      "prevention": [
+        "Maintain good air circulation.",
+        "Avoid excessive irrigation.",
+        "Remove infected plant debris."
+      ]
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "Tomato": {
+    "scientific_name": "Solanum lycopersicum",
+    "diseases": [
+      "Healthy",
+      "Early Blight",
+      "Late Blight",
+      "Leaf Mold"
+    ]
+  },
+  "Potato": {
+    "scientific_name": "Solanum tuberosum",
+    "diseases": [
+      "Healthy",
+      "Early Blight",
+      "Late Blight"
+    ]
+  },
+  "Onion": {
+    "scientific_name": "Allium cepa",
+    "diseases": [
+      "Healthy",
+      "Downy Mildew",
+      "Purple Blotch",
+      "Botrytis Leaf Blight"
+    ]
+  }
+}
