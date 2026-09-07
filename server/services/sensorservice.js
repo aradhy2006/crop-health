@@ -2,6 +2,27 @@ const SensorReading = require("../models/sensorreading");
 const Device = require("../models/device");
 const Farm = require("../models/farm");
 
+const ONLINE_WINDOW_MS = 5 * 60 * 1000;
+
+const withLiveStatus = (device) => {
+    if (!device) {
+        return null;
+    }
+
+    const plain = device.toObject ? device.toObject() : device;
+    const lastSeenTime = plain.lastSeen
+        ? new Date(plain.lastSeen).getTime()
+        : 0;
+    const isOnline =
+        Number.isFinite(lastSeenTime) &&
+        Date.now() - lastSeenTime < ONLINE_WINDOW_MS;
+
+    return {
+        ...plain,
+        status: isOnline ? "online" : "offline"
+    };
+};
+
 class SensorService {
 
     // =====================================================
@@ -15,10 +36,26 @@ class SensorService {
             soilMoisture
         } = sensorData;
 
-        const device = await Device.findOne({ deviceId });
+        let device = await Device.findOne({ deviceId });
 
         if (!device) {
-            throw new Error("Device not found");
+            const farm = await Farm.findOne().sort({
+                createdAt: 1
+            });
+
+            if (!farm) {
+                throw new Error(
+                    "Device not found. Add a farm first, then send sensor data."
+                );
+            }
+
+            device = await Device.create({
+                deviceId,
+                name: "ESP32 Device",
+                farmId: farm._id,
+                status: "online",
+                lastSeen: new Date()
+            });
         }
 
         const reading = await SensorReading.create({
@@ -119,29 +156,42 @@ class SensorService {
             return null;
         }
 
-        // Find the one physical ESP32
-        const device = await Device.findOne({
-            deviceId: "ESP32-003"
+        let device = await Device.findOne({
+            farmId: farm._id
+        }).sort({
+            lastSeen: -1,
+            updatedAt: -1
         });
 
-        // Device doesn't exist
         if (!device) {
-            return null;
+            device = await Device.findOne({
+                deviceId: "ESP32-003"
+            });
         }
 
-        // Automatically assign ESP32-003
-        // to the current farmer's farm
-        if (
+        if (!device) {
+            device = await Device.findOne().sort({
+                lastSeen: -1,
+                updatedAt: -1
+            });
+        }
+
+        if (!device) {
+            device = await Device.create({
+                deviceId: "ESP32-003",
+                name: "ESP32 Device",
+                farmId: farm._id,
+                status: "offline"
+            });
+        } else if (
             !device.farmId ||
             device.farmId.toString() !== farm._id.toString()
         ) {
             device.farmId = farm._id;
-            device.status = "online";
-
             await device.save();
         }
 
-        return device;
+        return withLiveStatus(device);
     }
 }
 

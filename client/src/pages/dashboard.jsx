@@ -27,26 +27,26 @@ function Dashboard() {
     // =====================================================
     // CHECK WHETHER LATEST READING IS FRESH
     // =====================================================
-    const isFreshReading = (reading) => {
-      if (!reading?.recordedAt) {
+    const isFreshTimestamp = (value) => {
+      if (!value) {
         return false;
       }
 
-      const recordedTime = new Date(
-        reading.recordedAt
-      ).getTime();
+      const timestamp = new Date(value).getTime();
 
-      if (Number.isNaN(recordedTime)) {
+      if (Number.isNaN(timestamp)) {
         return false;
       }
 
-      return Date.now() - recordedTime < 30000;
+      return Date.now() - timestamp < 5 * 60 * 1000;
     };
 
     // =====================================================
     // LOAD SENSOR DATA
     // =====================================================
-    const loadSensorData = async (assignedDeviceId) => {
+    const loadSensorData = async (assignedDevice) => {
+      const assignedDeviceId = assignedDevice?.deviceId;
+
       if (!assignedDeviceId) {
         if (mounted) {
           setSensorReading(null);
@@ -70,7 +70,14 @@ function Dashboard() {
         if (reading) {
           setSensorReading(reading);
           setIsSensorOnline(
-            isFreshReading(reading)
+            isFreshTimestamp(reading.recordedAt) ||
+            isFreshTimestamp(reading.updatedAt) ||
+            isFreshTimestamp(reading.createdAt) ||
+            isFreshTimestamp(assignedDevice.lastSeen)
+          );
+        } else {
+          setIsSensorOnline(
+            isFreshTimestamp(assignedDevice.lastSeen)
           );
         }
       } catch (error) {
@@ -79,10 +86,10 @@ function Dashboard() {
           error
         );
 
-        // Keep the last valid reading.
-        // Only change the online status.
         if (mounted) {
-          setIsSensorOnline(false);
+          setIsSensorOnline(
+            isFreshTimestamp(assignedDevice.lastSeen)
+          );
         }
       }
     };
@@ -132,15 +139,15 @@ function Dashboard() {
             setIsSensorOnline(false);
           } else {
             // Load initial reading
-            await loadSensorData(
-              assignedDevice.deviceId
+            setIsSensorOnline(
+              assignedDevice.status === "online" ||
+              isFreshTimestamp(assignedDevice.lastSeen)
             );
 
-            // Refresh every 10 seconds
+            await loadSensorData(assignedDevice);
+
             sensorInterval = setInterval(() => {
-              loadSensorData(
-                assignedDevice.deviceId
-              );
+              loadSensorData(assignedDevice);
             }, 10000);
           }
         } catch (deviceError) {

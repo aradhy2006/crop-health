@@ -1,13 +1,28 @@
 const sensorService = require("../services/sensorservice");
 
+const toNumber = (value) => {
+    if (typeof value === "number" && Number.isFinite(value)) {
+        return value;
+    }
+
+    if (typeof value === "string" && value.trim() !== "") {
+        const parsed = Number(value);
+        if (Number.isFinite(parsed)) {
+            return parsed;
+        }
+    }
+
+    return undefined;
+};
+
 const createSensorReading = async (req, res) => {
     try {
-        const {
-            deviceId,
-            temperature,
-            humidity,
-            soilMoisture
-        } = req.body;
+        const deviceId = String(req.body.deviceId || "").trim();
+        const temperature = toNumber(req.body.temperature);
+        const humidity = toNumber(req.body.humidity);
+        const soilMoisture = toNumber(
+            req.body.soilMoisture ?? req.body.soil_moisture
+        );
 
         if (
             !deviceId ||
@@ -19,18 +34,6 @@ const createSensorReading = async (req, res) => {
                 success: false,
                 message:
                     "deviceId, temperature, humidity and soilMoisture are required"
-            });
-        }
-
-        if (
-            typeof temperature !== "number" ||
-            typeof humidity !== "number" ||
-            typeof soilMoisture !== "number"
-        ) {
-            return res.status(400).json({
-                success: false,
-                message:
-                    "Temperature, humidity and soilMoisture must be numbers"
             });
         }
 
@@ -50,7 +53,12 @@ const createSensorReading = async (req, res) => {
         }
 
         const reading =
-            await sensorService.createSensorReading(req.body);
+            await sensorService.createSensorReading({
+                deviceId,
+                temperature,
+                humidity,
+                soilMoisture
+            });
 
         return res.status(201).json({
             success: true,
