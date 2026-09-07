@@ -2,6 +2,7 @@ from fastapi import APIRouter, UploadFile, File, Form
 
 from app.services.image_service import open_image
 from app.services.prediction_service import predict_disease
+from app.services.disease_info_service import get_disease_info
 from app.services.risk_service import calculate_risk
 
 router = APIRouter()
@@ -47,9 +48,16 @@ async def predict(
         if "error" in result:
             return result
 
+        disease_info = get_disease_info(result["crop"], result["disease"]) or {}
+
+        result["why"] = disease_info.get("why", "")
+        result["riskConditions"] = disease_info.get("risk_conditions", "")
+        result["solutions"] = disease_info.get("solutions", [])
+        result["preventiveMeasures"] = disease_info.get("prevention", [])
+
         risk_data = calculate_risk(
             result["confidence"],
-            result.get("spreadRisk", "Unknown"),
+            disease_info.get("spread_rate", "Unknown"),
             temperature,
             humidity,
             soil_moisture
