@@ -6,7 +6,7 @@ from PIL import Image
 import tensorflow as tf
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-MODEL_PATH = BASE_DIR / "trained_models" / "crop_disease_model.keras"
+MODEL_PATH = BASE_DIR / "trained_models" / "crop_classifier.tflite"
 CLASS_NAMES_PATH = BASE_DIR / "trained_models" / "disease_class_names.json"  # or your json path
 
 _disease_model = None
