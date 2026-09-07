@@ -21,6 +21,20 @@ app.use(
     express.static(path.join(__dirname, "uploads"))
 );
 
+app.get("/", (req, res) => {
+    res.json({
+        success: true,
+        message: "Crop Manager API is running"
+    });
+});
+
+app.get("/api/health", (req, res) => {
+    res.json({
+        success: true,
+        status: "ok"
+    });
+});
+
 app.use("/api/auth", authRoutes);
 app.use("/api/farms", farmRoutes);
 app.use("/api/disease", diseaseRoutes);
