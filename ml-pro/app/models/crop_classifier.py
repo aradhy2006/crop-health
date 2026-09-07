@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 import numpy as np
 from PIL import Image
-import tensorflow as tf
+import tflite_runtime.interpreter as tflite
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 MODEL_PATH = BASE_DIR / "trained_models" / "crop_classifier.tflite"
@@ -16,7 +16,7 @@ def get_interpreter():
     if _interpreter is None:
         if not MODEL_PATH.exists():
             raise FileNotFoundError(f"TFLite model not found at: {MODEL_PATH}")
-        _interpreter = tf.lite.Interpreter(model_path=str(MODEL_PATH))
+        _interpreter = tflite.Interpreter(model_path=str(MODEL_PATH))
         _interpreter.allocate_tensors()
     return _interpreter
 
