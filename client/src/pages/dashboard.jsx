@@ -27,6 +27,8 @@ function Dashboard() {
     // =====================================================
     // CHECK WHETHER LATEST READING IS FRESH
     // =====================================================
+    const ONLINE_MS = 45 * 1000;
+
     const isFreshTimestamp = (value) => {
       if (!value) {
         return false;
@@ -38,12 +40,9 @@ function Dashboard() {
         return false;
       }
 
-      return Date.now() - timestamp < 5 * 60 * 1000;
+      return Date.now() - timestamp < ONLINE_MS;
     };
 
-    // =====================================================
-    // LOAD SENSOR DATA
-    // =====================================================
     const loadSensorData = async (assignedDevice) => {
       const assignedDeviceId = assignedDevice?.deviceId;
 
@@ -69,17 +68,13 @@ function Dashboard() {
 
         if (reading) {
           setSensorReading(reading);
-          setIsSensorOnline(
-            isFreshTimestamp(reading.recordedAt) ||
-            isFreshTimestamp(reading.updatedAt) ||
-            isFreshTimestamp(reading.createdAt) ||
-            isFreshTimestamp(assignedDevice.lastSeen)
-          );
-        } else {
-          setIsSensorOnline(
-            isFreshTimestamp(assignedDevice.lastSeen)
-          );
         }
+
+        setIsSensorOnline(
+          isFreshTimestamp(reading?.recordedAt) ||
+          isFreshTimestamp(reading?.updatedAt) ||
+          isFreshTimestamp(reading?.createdAt)
+        );
       } catch (error) {
         console.error(
           "Unable to load sensor data:",
@@ -87,9 +82,7 @@ function Dashboard() {
         );
 
         if (mounted) {
-          setIsSensorOnline(
-            isFreshTimestamp(assignedDevice.lastSeen)
-          );
+          setIsSensorOnline(false);
         }
       }
     };
@@ -140,7 +133,6 @@ function Dashboard() {
           } else {
             // Load initial reading
             setIsSensorOnline(
-              assignedDevice.status === "online" ||
               isFreshTimestamp(assignedDevice.lastSeen)
             );
 
@@ -148,7 +140,7 @@ function Dashboard() {
 
             sensorInterval = setInterval(() => {
               loadSensorData(assignedDevice);
-            }, 10000);
+            }, 5000);
           }
         } catch (deviceError) {
           console.error(

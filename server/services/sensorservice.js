@@ -2,7 +2,7 @@ const SensorReading = require("../models/sensorreading");
 const Device = require("../models/device");
 const Farm = require("../models/farm");
 
-const ONLINE_WINDOW_MS = 5 * 60 * 1000;
+const ONLINE_WINDOW_MS = 45 * 1000;
 
 const withLiveStatus = (device) => {
     if (!device) {
