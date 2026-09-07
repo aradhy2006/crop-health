@@ -3,7 +3,8 @@ import json
 from pathlib import Path
 import numpy as np
 from PIL import Image
-import tflite_runtime.interpreter as tflite
+import tensorflow as tf
+tflite = tf.lite
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 MODEL_PATH = BASE_DIR / "trained_models" / "crop_disease_model.tflite"
