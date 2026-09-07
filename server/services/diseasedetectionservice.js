@@ -103,16 +103,15 @@ class DiseaseDetectionService {
         let response;
 
         try {
-            response = await axios.post(
-                "http://10.253.239.223:8000/prediction/predict",
-                form,
-                {
-                    headers: form.getHeaders(),
-                    maxContentLength: Infinity,
-                    maxBodyLength: Infinity,
-                    timeout:100000,
-                }
-            );
+            console.log(
+    "ML API URL:",
+    `${process.env.ML_API_BASE_URL}/prediction/predict`
+);
+          response = await axios.post(
+    `${process.env.ML_API_BASE_URL}/prediction/predict`,
+    form,
+    { headers: form.getHeaders(), maxContentLength: Infinity, maxBodyLength: Infinity, timeout: 100000 }
+);
         } catch (error) {
     console.error("ML API STATUS:", error.response?.status);
     console.error("ML API DATA:", error.response?.data);
