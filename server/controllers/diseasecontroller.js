@@ -250,6 +250,21 @@ const getReportPage = async (req, res) => {
             )
         );
 
+        const sensorFactors = Array.isArray(report.sensorFactors) ? report.sensorFactors : [];
+        const sensorFactorsHtml = sensorFactors.length > 0
+            ? `
+            <div style="margin-top: 18px; padding: 14px 18px; background: #fff8e6; border: 1px solid #f6d899; border-radius: 12px;">
+                <strong style="color: #945700; display: block; font-size: 14px; margin-bottom: 6px;">
+                    ⚠️ Environmental Warnings & Stress Factors:
+                </strong>
+                <ul style="margin: 0; padding-left: 18px; color: #784500; font-size: 13.5px; line-height: 1.5;">
+                    ${sensorFactors.map(f => `<li style="margin-bottom: 4px;">${f}</li>`).join("")}
+                </ul>
+                ${report.riskConditions ? `<p style="margin: 6px 0 0; color: #945700; font-style: italic; font-size: 12px;">${report.riskConditions}</p>` : ""}
+            </div>
+            `
+            : "";
+
         return res.send(`
 <!DOCTYPE html>
 <html lang="en">
@@ -1397,6 +1412,8 @@ const getReportPage = async (req, res) => {
                 </div>
 
             </div>
+
+            ${sensorFactorsHtml}
 
         </section>
 

@@ -277,6 +277,24 @@ function ReportDetail() {
                 </div>
               </div>
             </div>
+
+            {report.sensorFactors?.length > 0 && (
+              <div style={{ marginTop: "16px", padding: "12px 16px", background: "#fffbeb", borderRadius: "10px", border: "1px solid #fde68a" }}>
+                <strong style={{ color: "#b45309", display: "block", marginBottom: "6px", fontSize: "14px" }}>
+                  ⚠️ Environmental Warnings:
+                </strong>
+                <ul style={{ margin: "0", paddingLeft: "18px", color: "#92400e", fontSize: "13px", lineHeight: "1.5" }}>
+                  {report.sensorFactors.map((factor, index) => (
+                    <li key={index}>{factor}</li>
+                  ))}
+                </ul>
+                {report.riskConditions && (
+                  <p style={{ margin: "6px 0 0", color: "#b45309", fontStyle: "italic", fontSize: "12px" }}>
+                    {report.riskConditions}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="analysis-details-panel">

@@ -79,6 +79,17 @@ const diseaseReportSchema = new mongoose.Schema(
             },
         },
 
+        // Environmental warnings and risk conditions based on sensors
+        sensorFactors: {
+            type: [String],
+            default: []
+        },
+
+        riskConditions: {
+            type: String,
+            default: ""
+        },
+
         // QR code for report
         qrCode: {
             type: String,

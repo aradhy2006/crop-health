@@ -502,6 +502,26 @@ function DiseaseDetection() {
 
                         </div>
 
+                        {report.sensorFactors?.length > 0 && (
+                            <div className="report-block environmental-warning-block">
+                                <h3 style={{ color: "#d97706", display: "flex", alignItems: "center", gap: "8px" }}>
+                                    ⚠️ Environmental Stress Warnings
+                                </h3>
+                                <ul style={{ paddingLeft: "20px", margin: "8px 0", color: "#92400e" }}>
+                                    {report.sensorFactors.map((factor, index) => (
+                                        <li key={index} style={{ marginBottom: "6px", lineHeight: "1.5" }}>
+                                            <strong>{factor}</strong>
+                                        </li>
+                                    ))}
+                                </ul>
+                                {report.riskConditions && (
+                                    <p style={{ fontStyle: "italic", color: "#b45309", marginTop: "6px", fontSize: "14px" }}>
+                                        {report.riskConditions}
+                                    </p>
+                                )}
+                            </div>
+                        )}
+
                         <div className="report-block">
 
                             <h3>

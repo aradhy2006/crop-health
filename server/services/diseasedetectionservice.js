@@ -49,6 +49,8 @@ class DiseaseDetectionService {
             prevention: prediction.prevention,
 
             sensorReadings,
+            sensorFactors: prediction.sensorFactors || [],
+            riskConditions: prediction.riskConditions || "",
             qrCode,
         });
 
@@ -173,7 +175,15 @@ class DiseaseDetectionService {
         const prevention =
             Array.isArray(response.data.preventiveMeasures)
                 ? response.data.preventiveMeasures
+                : (Array.isArray(response.data.prevention) ? response.data.prevention : []);
+
+        const sensorFactors =
+            Array.isArray(response.data.sensorFactors)
+                ? response.data.sensorFactors
                 : [];
+
+        const riskConditions =
+            String(response.data.riskConditions || "");
 
         return {
             disease: response.data.disease,
@@ -191,6 +201,10 @@ class DiseaseDetectionService {
             solution,
 
             prevention,
+
+            sensorFactors,
+
+            riskConditions,
         };
     }
 }

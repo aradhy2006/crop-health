@@ -85,16 +85,26 @@ async def predict(
         )
 
         result["risk"] = risk_data["risk"]
-
         result["spreadRisk"] = risk_data["spreadRisk"]
 
         # Detailed sensor warnings
         result["sensorFactors"] = risk_data["sensorFactors"]
 
+        # Merge disease solutions with environmental solutions
+        solutions = list(disease_info.get("solutions", []))
+        for env_sol in risk_data.get("environmentalSolutions", []):
+            if env_sol not in solutions:
+                solutions.append(env_sol)
+        result["solutions"] = solutions
+
+        # Merge disease prevention with environmental prevention
+        preventive_measures = list(disease_info.get("prevention", []))
+        for env_prev in risk_data.get("environmentalPrevention", []):
+            if env_prev not in preventive_measures:
+                preventive_measures.append(env_prev)
+        result["preventiveMeasures"] = preventive_measures
+
         # Risk conditions
-        # If sensors are abnormal, show that environmental
-        # conditions are not favorable.
-        # Otherwise show disease database conditions.
         if risk_data["sensorFactors"]:
             result["riskConditions"] = (
                 "Current environmental conditions are not "
