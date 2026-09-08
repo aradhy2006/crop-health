@@ -5,6 +5,7 @@ import diseaseService from "../services/diseaseservice";
 import farmService from "../services/farmservice";
 import sensorService from "../services/sensorservice";
 import Navbar from "../components/Navbar";
+import { displayRiskLevel } from "../utils/reportDisplay";
 
 import "./diseasedetection.css";
 
@@ -478,7 +479,7 @@ function DiseaseDetection() {
                                 <strong>
                                     Risk Level:
                                 </strong>{" "}
-                                {report.riskLevel}
+                                {displayRiskLevel(report)}
                             </p>
 
                         </div>

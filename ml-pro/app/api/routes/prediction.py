@@ -51,11 +51,17 @@ async def predict(
         if "error" in result:
             return result
 
+        disease_name = result.get("disease", "")
+        is_healthy = "healthy" in disease_name.lower() or "no disease" in disease_name.lower()
+
         # Disease information
         disease_info = get_disease_info(
             result["crop"],
             result["disease"]
         ) or {}
+
+        if is_healthy and not disease_info:
+            disease_info = get_disease_info(result["crop"], "Healthy") or {}
 
         result["why"] = disease_info.get(
             "why",
@@ -72,16 +78,20 @@ async def predict(
             []
         )
 
+        spread_rate = (
+            "None"
+            if is_healthy
+            else disease_info.get("spread_rate", "Unknown")
+        )
+
         # Risk calculation using disease + sensor data
         risk_data = calculate_risk(
             result["confidence"],
-            disease_info.get(
-                "spread_rate",
-                "Unknown"
-            ),
+            spread_rate,
             temperature,
             humidity,
-            soil_moisture
+            soil_moisture,
+            disease=disease_name,
         )
 
         result["risk"] = risk_data["risk"]

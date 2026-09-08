@@ -1,13 +1,25 @@
+def _is_healthy_condition(spread_rate: str = "", disease: str = "") -> bool:
+    disease_name = str(disease or "").strip().lower()
+    spread = str(spread_rate or "").strip().lower()
+
+    return (
+        "healthy" in disease_name
+        or "no disease" in disease_name
+        or spread in ("none", "n/a", "na")
+    )
+
+
 def calculate_risk(
     confidence: float,
     spread_rate: str,
     temperature: float = None,
     humidity: float = None,
-    soil_moisture: float = None
+    soil_moisture: float = None,
+    disease: str = "",
 ):
     # Healthy crop/disease-free condition
     # should not be marked as disease risk.
-    if spread_rate.strip().lower() == "none":
+    if _is_healthy_condition(spread_rate, disease):
         sensor_factors = []
 
         # Even for healthy crops, warn about extreme sensor conditions.

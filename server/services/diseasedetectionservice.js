@@ -157,9 +157,16 @@ class DiseaseDetectionService {
             );
         }
 
-        const risk = String(response.data.risk || "")
-            .toLowerCase()
-            .replace(/^./, (char) => char.toUpperCase());
+        const diseaseName = String(response.data.disease || "");
+        const isHealthy =
+            diseaseName.toLowerCase().includes("healthy") ||
+            diseaseName.toLowerCase().includes("no disease");
+
+        const risk = isHealthy
+            ? "Low"
+            : String(response.data.risk || "")
+                .toLowerCase()
+                .replace(/^./, (char) => char.toUpperCase());
 
         if (!["Low", "Medium", "High"].includes(risk)) {
             throw new Error(
@@ -195,8 +202,9 @@ class DiseaseDetectionService {
             whyItHappens:
                 response.data.why || "",
 
-            expectedSpread:
-                response.data.spreadRisk || "",
+            expectedSpread: isHealthy
+                ? "None"
+                : (response.data.spreadRisk || ""),
 
             solution,
 

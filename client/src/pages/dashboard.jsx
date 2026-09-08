@@ -4,6 +4,7 @@ import farmService from "../services/farmservice";
 import sensorService from "../services/sensorservice";
 import diseaseService from "../services/diseaseservice";
 import Navbar from "../components/Navbar";
+import { displayRiskLevel } from "../utils/reportDisplay";
 import "./dashboard.css";
 
 function Dashboard() {
@@ -408,13 +409,13 @@ function Dashboard() {
                 className={`risk-label ${
                   latestReport
                     ? getRiskClass(
-                        latestReport.riskLevel
+                        displayRiskLevel(latestReport)
                       )
                     : "dashboard-risk-low"
                 }`}
               >
                 {latestReport
-                  ? `${latestReport.riskLevel} Risk`
+                  ? `${displayRiskLevel(latestReport)} Risk`
                   : "No Analysis"}
               </small>
 
@@ -950,18 +951,17 @@ function Dashboard() {
 
                   <span
                     className={`dashboard-risk-badge ${getRiskClass(
-                      latestReport.riskLevel
+                      displayRiskLevel(latestReport)
                     )}`}
                   >
 
                     <span>
                       {getRiskIcon(
-                        latestReport.riskLevel
+                        displayRiskLevel(latestReport)
                       )}
                     </span>
 
-                    {latestReport.riskLevel ||
-                      "Low"}{" "}
+                    {displayRiskLevel(latestReport)}{" "}
                     Risk
 
                   </span>

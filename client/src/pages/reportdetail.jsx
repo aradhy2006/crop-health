@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import diseaseService from "../services/diseaseservice";
 import Navbar from "../components/Navbar";
+import { displayRiskLevel, isHealthyDisease } from "../utils/reportDisplay";
 import "./reportdetail.css";
 
 function ReportDetail() {
@@ -123,6 +124,8 @@ function ReportDetail() {
   }
 
   const sensor = report.sensorReadings || {};
+  const riskLevel = displayRiskLevel(report);
+  const healthyCrop = isHealthyDisease(report.disease);
 
   return (
     <div className="report-detail-page">
@@ -199,13 +202,13 @@ function ReportDetail() {
 
           <div className="summary-side">
             <div
-              className={`risk-summary-card ${getRiskClass(report.riskLevel)}`}
+              className={`risk-summary-card ${getRiskClass(riskLevel)}`}
             >
               <span>Risk Level</span>
 
-              <strong>{report.riskLevel || "Low"} Risk</strong>
+              <strong>{riskLevel} Risk</strong>
 
-              <small>{getRiskMessage(report.riskLevel)}</small>
+              <small>{getRiskMessage(riskLevel)}</small>
             </div>
 
             <div className="confidence-summary-card">
@@ -447,8 +450,9 @@ function ReportDetail() {
               <h2>Our Recommendation</h2>
 
               <p>
-                Take timely action to manage the detected crop condition and
-                prevent further spread.
+                {healthyCrop
+                  ? "The crop appears healthy. Continue regular monitoring and maintain current field practices."
+                  : "Take timely action to manage the detected crop condition and prevent further spread."}
               </p>
 
               <p>

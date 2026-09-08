@@ -1,6 +1,11 @@
 const diseaseDetectionService = require("../services/diseasedetectionservice");
 const path = require("path");
 
+const isHealthyDiseaseName = (disease) => {
+    const name = String(disease || "").toLowerCase();
+    return name.includes("healthy") || name.includes("no disease");
+};
+
 const analyzeDisease = async (req, res) => {
     try {
         if (!req.file) {
@@ -205,8 +210,9 @@ const getReportPage = async (req, res) => {
                 </li>
             `;
 
-        const riskLevel =
-            String(report.riskLevel || "Low");
+        const riskLevel = isHealthyDiseaseName(report.disease)
+            ? "Low"
+            : String(report.riskLevel || "Low");
 
         const riskClass =
             riskLevel.toLowerCase();
@@ -229,6 +235,11 @@ const getReportPage = async (req, res) => {
                   year: "numeric",
               })
             : "N/A";
+
+        const expectedSpread = isHealthyDiseaseName(report.disease)
+            ? "None"
+            : (report.expectedSpread ||
+                "No spread information is available for this report.");
 
         const reportDateTime = report.createdAt
             ? new Date(
@@ -1458,8 +1469,7 @@ const getReportPage = async (req, res) => {
 
                 <p class="insight-text">
                     ${
-                        report.expectedSpread ||
-                        "No spread information is available for this report."
+                        expectedSpread
                     }
                 </p>
 

@@ -1,9 +1,21 @@
+def _is_healthy_condition(spread_rate: str = "", disease: str = "") -> bool:
+    disease_name = str(disease or "").strip().lower()
+    spread = str(spread_rate or "").strip().lower()
+
+    return (
+        "healthy" in disease_name
+        or "no disease" in disease_name
+        or spread in ("none", "n/a", "na")
+    )
+
+
 def calculate_risk(
     confidence: float,
     spread_rate: str,
     temperature: float = None,
     humidity: float = None,
-    soil_moisture: float = None
+    soil_moisture: float = None,
+    disease: str = "",
 ):
     sensor_factors = []
     env_solutions = []
@@ -85,9 +97,8 @@ def calculate_risk(
                 "Use drip irrigation systems and surface mulching to conserve soil water."
             )
 
-    is_healthy = spread_rate.strip().lower() == "none"
-
-    if is_healthy:
+    # Healthy crop/disease-free condition should not be marked as disease risk.
+    if _is_healthy_condition(spread_rate, disease):
         return {
             "risk": "LOW",
             "spreadRisk": "None",

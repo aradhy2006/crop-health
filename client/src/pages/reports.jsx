@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import diseaseService from "../services/diseaseservice";
 import Navbar from "../components/Navbar";
+import { displayRiskLevel, isHealthyDisease } from "../utils/reportDisplay";
 import "./reports.css";
 
 function Reports() {
@@ -60,7 +61,7 @@ function Reports() {
 
             const matchesRisk =
                 riskFilter === "All Risk Levels" ||
-                report.riskLevel === riskFilter;
+                displayRiskLevel(report) === riskFilter;
 
             return matchesSearch && matchesCrop && matchesRisk;
         });
@@ -77,21 +78,14 @@ function Reports() {
 
     const totalReports = reports.length;
 
-    const highRiskReports = reports.filter(
-        (report) =>
-            report.riskLevel === "High" ||
-            report.riskLevel === "Critical"
-    ).length;
-
-    const healthyReports = reports.filter((report) => {
-        const disease = report.disease?.toLowerCase() || "";
-
-        return (
-            disease.includes("healthy") ||
-            disease.includes("no disease") ||
-            disease === "healthy plant"
-        );
+    const highRiskReports = reports.filter((report) => {
+        const risk = displayRiskLevel(report);
+        return risk === "High" || risk === "Critical";
     }).length;
+
+    const healthyReports = reports.filter((report) =>
+        isHealthyDisease(report.disease)
+    ).length;
 
     const getRiskClass = (riskLevel) => {
         switch (riskLevel) {
@@ -408,17 +402,16 @@ function Reports() {
 
                                                 <span
                                                     className={`risk-badge ${getRiskClass(
-                                                        report.riskLevel
+                                                        displayRiskLevel(report)
                                                     )}`}
                                                 >
                                                     <span>
                                                         {getRiskIcon(
-                                                            report.riskLevel
+                                                            displayRiskLevel(report)
                                                         )}
                                                     </span>
 
-                                                    {report.riskLevel ||
-                                                        "Low"}{" "}
+                                                    {displayRiskLevel(report)}{" "}
                                                     Risk
                                                 </span>
                                             </div>
