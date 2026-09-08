@@ -27,6 +27,7 @@ async def predict(
         image_bytes = await file.read()
         image = open_image(image_bytes)
 
+        # Treat 0 as missing sensor data
         if temperature == 0:
             temperature = None
 
@@ -36,6 +37,7 @@ async def predict(
         if soil_moisture == 0:
             soil_moisture = None
 
+        # Normalize crop name
         crop = crop.strip().capitalize()
 
         if crop not in ["Tomato", "Potato", "Onion"]:
@@ -43,30 +45,68 @@ async def predict(
                 "error": "Invalid crop. Choose Tomato, Potato, or Onion."
             }
 
+        # AI disease prediction
         result = predict_disease(image, crop)
 
         if "error" in result:
             return result
 
-        disease_info = get_disease_info(result["crop"], result["disease"]) or {}
+        # Disease information
+        disease_info = get_disease_info(
+            result["crop"],
+            result["disease"]
+        ) or {}
 
-        result["why"] = disease_info.get("why", "")
-        result["riskConditions"] = disease_info.get("risk_conditions", "")
-        result["solutions"] = disease_info.get("solutions", [])
-        result["preventiveMeasures"] = disease_info.get("prevention", [])
+        result["why"] = disease_info.get(
+            "why",
+            ""
+        )
 
+        result["solutions"] = disease_info.get(
+            "solutions",
+            []
+        )
+
+        result["preventiveMeasures"] = disease_info.get(
+            "prevention",
+            []
+        )
+
+        # Risk calculation using disease + sensor data
         risk_data = calculate_risk(
             result["confidence"],
-            disease_info.get("spread_rate", "Unknown"),
+            disease_info.get(
+                "spread_rate",
+                "Unknown"
+            ),
             temperature,
             humidity,
             soil_moisture
         )
 
         result["risk"] = risk_data["risk"]
+
         result["spreadRisk"] = risk_data["spreadRisk"]
+
+        # Detailed sensor warnings
         result["sensorFactors"] = risk_data["sensorFactors"]
 
+        # Risk conditions
+        # If sensors are abnormal, show that environmental
+        # conditions are not favorable.
+        # Otherwise show disease database conditions.
+        if risk_data["sensorFactors"]:
+            result["riskConditions"] = (
+                "Current environmental conditions are not "
+                "favorable for overall crop health."
+            )
+        else:
+            result["riskConditions"] = disease_info.get(
+                "risk_conditions",
+                ""
+            )
+
+        # Sensor readings
         result["sensorData"] = {
             "temperature": temperature,
             "humidity": humidity,
