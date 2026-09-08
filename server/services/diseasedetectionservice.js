@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const DiseaseReport = require("../models/diseasereport");
 const Farm = require("../models/farm");
 const QRCode = require("qrcode");
@@ -11,6 +12,7 @@ class DiseaseDetectionService {
         farmId,
         crop,
         imagePath,
+        imageUrl,
         sensorReadings,
     }) {
         const prediction = await this.getPrediction(
@@ -19,11 +21,23 @@ class DiseaseDetectionService {
             sensorReadings
         );
 
+        const reportId = new mongoose.Types.ObjectId();
+        const baseUrl = process.env.PUBLIC_REPORT_BASE_URL || "";
+        const reportUrl = `${baseUrl}/api/disease/report-page/${reportId}`;
+
+        let qrCode = "";
+        try {
+            qrCode = await QRCode.toDataURL(reportUrl);
+        } catch (qrErr) {
+            console.warn("QR code generation warning:", qrErr.message);
+        }
+
         const report = await DiseaseReport.create({
+            _id: reportId,
             farmerId,
             farmId,
             crop,
-            image: imagePath,
+            image: imageUrl || imagePath,
 
             disease: prediction.disease,
             confidence: prediction.confidence,
@@ -35,17 +49,8 @@ class DiseaseDetectionService {
             prevention: prediction.prevention,
 
             sensorReadings,
+            qrCode,
         });
-
-        const reportUrl =
-            `${process.env.PUBLIC_REPORT_BASE_URL}` +
-            `/api/disease/report-page/${report._id}`;
-
-        const qrCode = await QRCode.toDataURL(reportUrl);
-
-        report.qrCode = qrCode;
-
-        await report.save();
 
         return report;
     }

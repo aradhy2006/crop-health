@@ -3,7 +3,13 @@ import json
 from pathlib import Path
 import numpy as np
 from PIL import Image
-from ai_edge_litert.interpreter import Interpreter
+try:
+    from ai_edge_litert.interpreter import Interpreter
+except ImportError:
+    try:
+        from tflite_runtime.interpreter import Interpreter
+    except ImportError:
+        from tensorflow.lite.python.interpreter import Interpreter
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 MODEL_PATH = BASE_DIR / "trained_models" / "crop_disease_model.tflite"
@@ -107,8 +113,6 @@ def predict_disease(image: Image.Image, crop: str = None, **kwargs):
         if total_probability > 0
         else original_confidence
     )
-
-    gc.collect()
 
     return {
         "crop": selected_crop,

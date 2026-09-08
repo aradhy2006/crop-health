@@ -90,48 +90,58 @@ function Dashboard() {
     // =====================================================
     // LOAD DASHBOARD
     // =====================================================
+    // =====================================================
+    // LOAD DASHBOARD (PARALLEL CONCURRENT FETCH)
+    // =====================================================
     const loadDashboardData = async () => {
       try {
-        // =================================================
-        // LOAD FARM
-        // =================================================
-        const farmResponse =
-          await farmService.getMyFarms();
+        const [farmResult, deviceResult, reportResult] =
+          await Promise.allSettled([
+            farmService.getMyFarms(),
+            sensorService.getMyDevice(),
+            diseaseService.getReports(),
+          ]);
 
         if (!mounted) {
           return;
         }
 
-        const farms = farmResponse?.farms || [];
-
-        if (farms.length > 0) {
-          setFarm(farms[0]);
+        // 1. Process Farms
+        if (farmResult.status === "fulfilled") {
+          const farms = farmResult.value?.farms || [];
+          setFarm(farms.length > 0 ? farms[0] : null);
         } else {
+          console.error("Unable to load farms:", farmResult.reason);
           setFarm(null);
         }
 
-        // =================================================
-        // GET DEVICE FOR LOGGED-IN FARMER
-        // =================================================
-        try {
-          const deviceResponse =
-            await sensorService.getMyDevice();
+        // 2. Process Disease Reports
+        if (reportResult.status === "fulfilled") {
+          const latestReports = (
+            reportResult.value?.reports || []
+          )
+            .sort(
+              (a, b) =>
+                new Date(b.createdAt || 0) -
+                new Date(a.createdAt || 0)
+            )
+            .slice(0, 1);
+          setReports(latestReports);
+        } else {
+          console.error("Unable to load reports:", reportResult.reason);
+          setReports([]);
+        }
 
-          if (!mounted) {
-            return;
-          }
-
+        // 3. Process Device and Sensors
+        if (deviceResult.status === "fulfilled") {
           const assignedDevice =
-            deviceResponse?.device || null;
-
+            deviceResult.value?.device || null;
           setDevice(assignedDevice);
 
-          // No device assigned
           if (!assignedDevice?.deviceId) {
             setSensorReading(null);
             setIsSensorOnline(false);
           } else {
-            // Load initial reading
             setIsSensorOnline(
               isFreshTimestamp(assignedDevice.lastSeen)
             );
@@ -142,57 +152,14 @@ function Dashboard() {
               loadSensorData(assignedDevice);
             }, 5000);
           }
-        } catch (deviceError) {
-          console.error(
-            "Unable to load assigned device:",
-            deviceError
-          );
-
-          if (mounted) {
-            setDevice(null);
-            setSensorReading(null);
-            setIsSensorOnline(false);
-          }
-        }
-
-        // =================================================
-        // LOAD DISEASE REPORTS
-        // =================================================
-        try {
-          const reportResponse =
-            await diseaseService.getReports();
-
-          if (!mounted) {
-            return;
-          }
-
-          const latestReports = (
-            reportResponse?.reports || []
-          )
-            .sort(
-              (a, b) =>
-                new Date(b.createdAt || 0) -
-                new Date(a.createdAt || 0)
-            )
-            .slice(0, 1);
-
-          setReports(latestReports);
-        } catch (reportError) {
-          console.error(
-            "Unable to load disease reports:",
-            reportError
-          );
-
-          if (mounted) {
-            setReports([]);
-          }
+        } else {
+          console.error("Unable to load device:", deviceResult.reason);
+          setDevice(null);
+          setSensorReading(null);
+          setIsSensorOnline(false);
         }
       } catch (error) {
-        console.error(
-          "Unable to load dashboard data:",
-          error
-        );
-
+        console.error("Unable to load dashboard data:", error);
         if (mounted) {
           setFarm(null);
           setDevice(null);

@@ -33,4 +33,6 @@ const sensorReadingSchema = new mongoose.Schema(
     }
 );
 
+sensorReadingSchema.index({ deviceId: 1, recordedAt: -1 });
+
 module.exports = mongoose.model("SensorReading", sensorReadingSchema);

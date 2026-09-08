@@ -37,4 +37,6 @@ const deviceSchema = new mongoose.Schema(
     }
 );
 
+deviceSchema.index({ farmId: 1 });
+
 module.exports = mongoose.model("Device", deviceSchema);

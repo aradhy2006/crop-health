@@ -30,50 +30,86 @@ function DiseaseDetection() {
 
     const deviceId = "ESP32-003";
 
+    // Fast client-side image optimizer to speed up mobile/camera uploads
+    const compressImage = (file) => {
+        return new Promise((resolve) => {
+            if (!file || !file.type.startsWith("image/")) {
+                return resolve(file);
+            }
+            if (file.size <= 400 * 1024) {
+                return resolve(file);
+            }
+            const img = new Image();
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                img.onload = () => {
+                    const canvas = document.createElement("canvas");
+                    let width = img.width;
+                    let height = img.height;
+                    const maxDim = 1024;
+                    if (width > maxDim || height > maxDim) {
+                        if (width > height) {
+                            height = Math.round((height * maxDim) / width);
+                            width = maxDim;
+                        } else {
+                            width = Math.round((width * maxDim) / height);
+                            height = maxDim;
+                        }
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext("2d");
+                    ctx.drawImage(img, 0, 0, width, height);
+                    canvas.toBlob(
+                        (blob) => {
+                            if (blob && blob.size < file.size) {
+                                const compressedFile = new File([blob], file.name, {
+                                    type: "image/jpeg",
+                                    lastModified: Date.now(),
+                                });
+                                resolve(compressedFile);
+                            } else {
+                                resolve(file);
+                            }
+                        },
+                        "image/jpeg",
+                        0.85
+                    );
+                };
+                img.onerror = () => resolve(file);
+                img.src = e.target.result;
+            };
+            reader.onerror = () => resolve(file);
+            reader.readAsDataURL(file);
+        });
+    };
+
     useEffect(() => {
         const loadFarmAndSensorData = async () => {
             try {
-                const farmResponse = await farmService.getMyFarms();
+                const [farmRes, sensorRes] = await Promise.allSettled([
+                    farmService.getMyFarms(),
+                    sensorService.getLatestReading(deviceId),
+                ]);
 
-                if (
-                    farmResponse.farms &&
-                    farmResponse.farms.length > 0
-                ) {
-                    setFarm(farmResponse.farms[0]);
+                if (farmRes.status === "fulfilled" && farmRes.value?.farms?.length > 0) {
+                    setFarm(farmRes.value.farms[0]);
                 } else {
-                    setError(
-                        "No farm found. Please add a farm first."
-                    );
+                    setError("No farm found. Please add a farm first.");
                 }
 
-                try {
-                    const sensorResponse =
-                        await sensorService.getLatestReading(deviceId);
-
-                    const reading = sensorResponse.reading;
-
+                if (sensorRes.status === "fulfilled") {
+                    const reading = sensorRes.value?.reading;
                     if (reading) {
                         setFormData({
-                            temperature:
-                                reading.temperature ?? "",
-                            humidity:
-                                reading.humidity ?? "",
-                            soilMoisture:
-                                reading.soilMoisture ?? "",
+                            temperature: reading.temperature ?? "",
+                            humidity: reading.humidity ?? "",
+                            soilMoisture: reading.soilMoisture ?? "",
                         });
                     }
-                } catch (sensorError) {
-                    console.error(
-                        "Unable to load sensor data:",
-                        sensorError
-                    );
                 }
             } catch (error) {
-                console.error(
-                    "Unable to load farm information:",
-                    error
-                );
-
+                console.error("Unable to load farm or sensor information:", error);
                 setError("Unable to load your farm.");
             } finally {
                 setFarmLoading(false);
@@ -93,7 +129,7 @@ function DiseaseDetection() {
         }));
     };
 
-    const handleImageChange = (event) => {
+    const handleImageChange = async (event) => {
         const selectedImage = event.target.files[0];
 
         if (!selectedImage) {
@@ -126,9 +162,10 @@ function DiseaseDetection() {
         setLoading(true);
 
         try {
+            const uploadFile = await compressImage(image);
             const data = new FormData();
 
-            data.append("image", image);
+            data.append("image", uploadFile);
 
             data.append("farmId", farm._id);
             data.append("crop", farm.crop);

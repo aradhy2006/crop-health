@@ -47,4 +47,6 @@ const farmSchema = new mongoose.Schema(
     }
 );
 
+farmSchema.index({ farmerId: 1 });
+
 module.exports = mongoose.model("Farm", farmSchema);

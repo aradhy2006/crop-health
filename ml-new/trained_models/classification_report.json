@@ -1,0 +1,81 @@
+{
+    "onion_botrytis_leaf_blight": {
+        "precision": 0.6029411764705882,
+        "recall": 0.9318181818181818,
+        "f1-score": 0.7321428571428571,
+        "support": 44.0
+    },
+    "onion_downy_mildew": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 7.0
+    },
+    "onion_healthy": {
+        "precision": 0.9649122807017544,
+        "recall": 0.8527131782945736,
+        "f1-score": 0.9053497942386831,
+        "support": 516.0
+    },
+    "onion_purple_blotch": {
+        "precision": 0.6132596685082873,
+        "recall": 0.8671875,
+        "f1-score": 0.7184466019417476,
+        "support": 128.0
+    },
+    "potato_early_blight": {
+        "precision": 0.9383561643835616,
+        "recall": 0.9133333333333333,
+        "f1-score": 0.9256756756756757,
+        "support": 150.0
+    },
+    "potato_healthy": {
+        "precision": 0.5263157894736842,
+        "recall": 0.8333333333333334,
+        "f1-score": 0.6451612903225806,
+        "support": 24.0
+    },
+    "potato_late_blight": {
+        "precision": 0.7867647058823529,
+        "recall": 0.7133333333333334,
+        "f1-score": 0.7482517482517482,
+        "support": 150.0
+    },
+    "tomato_early_blight": {
+        "precision": 0.6644736842105263,
+        "recall": 0.6733333333333333,
+        "f1-score": 0.6688741721854304,
+        "support": 150.0
+    },
+    "tomato_healthy": {
+        "precision": 0.9497716894977168,
+        "recall": 0.8666666666666667,
+        "f1-score": 0.906318082788671,
+        "support": 240.0
+    },
+    "tomato_late_blight": {
+        "precision": 0.8355555555555556,
+        "recall": 0.6550522648083623,
+        "f1-score": 0.734375,
+        "support": 287.0
+    },
+    "tomato_leaf_mold": {
+        "precision": 0.6073059360730594,
+        "recall": 0.9236111111111112,
+        "f1-score": 0.7327823691460055,
+        "support": 144.0
+    },
+    "accuracy": 0.8076086956521739,
+    "macro avg": {
+        "precision": 0.6808778773415534,
+        "recall": 0.7482165669120208,
+        "f1-score": 0.7015797810630363,
+        "support": 1840.0
+    },
+    "weighted avg": {
+        "precision": 0.8310836157680019,
+        "recall": 0.8076086956521739,
+        "f1-score": 0.8108927614135683,
+        "support": 1840.0
+    }
+}

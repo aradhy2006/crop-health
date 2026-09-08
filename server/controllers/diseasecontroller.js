@@ -70,22 +70,19 @@ const analyzeDisease = async (req, res) => {
                     : undefined,
         };
 
+        const publicImageUrl =
+            `${process.env.PUBLIC_REPORT_BASE_URL || ""}/` +
+            `${req.file.path.replace(/\\/g, "/")}`;
+
         const report =
             await diseaseDetectionService.analyzeCrop({
                 farmerId,
                 farmId: farmId.trim(),
                 crop: crop.trim(),
                 imagePath: localImagePath,
+                imageUrl: publicImageUrl,
                 sensorReadings,
             });
-
-        const publicImageUrl =
-            `${process.env.PUBLIC_REPORT_BASE_URL}/` +
-            `${req.file.path.replace(/\\/g, "/")}`;
-
-        report.image = publicImageUrl;
-
-        await report.save();
 
         return res.status(201).json({
             success: true,

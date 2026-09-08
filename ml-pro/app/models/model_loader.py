@@ -1,7 +1,13 @@
 import json
 from pathlib import Path
 
-from ai_edge_litert.interpreter import Interpreter
+try:
+    from ai_edge_litert.interpreter import Interpreter
+except ImportError:
+    try:
+        from tflite_runtime.interpreter import Interpreter
+    except ImportError:
+        from tensorflow.lite.python.interpreter import Interpreter
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
