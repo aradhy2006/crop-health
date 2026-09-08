@@ -63,6 +63,9 @@ def get_interpreter():
     return _interpreter
 
 
+from app.models.crop_classifier import predict_crop
+
+
 def _format_disease_name(class_name: str) -> str:
     _, disease = class_name.split("_", 1)
     return disease.replace("_", " ").title()
@@ -71,6 +74,13 @@ def _format_disease_name(class_name: str) -> str:
 def predict_disease(image: Image.Image, crop: str = None, **kwargs):
     class_names = get_class_names()
     selected_crop = (crop or "").strip().capitalize()
+
+    if selected_crop not in CROP_CLASS_RANGES:
+        try:
+            detected = predict_crop(image)
+            selected_crop = detected.get("crop", "").strip().capitalize()
+        except Exception:
+            pass
 
     if selected_crop not in CROP_CLASS_RANGES:
         return {

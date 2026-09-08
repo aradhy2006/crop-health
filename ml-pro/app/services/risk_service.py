@@ -88,9 +88,8 @@ def calculate_risk(
     is_healthy = spread_rate.strip().lower() == "none"
 
     if is_healthy:
-        risk = "HIGH" if len(sensor_factors) >= 2 else ("MEDIUM" if len(sensor_factors) == 1 else "LOW")
         return {
-            "risk": risk,
+            "risk": "LOW",
             "spreadRisk": "None",
             "sensorFactors": sensor_factors,
             "environmentalSolutions": env_solutions,

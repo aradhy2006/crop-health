@@ -30,6 +30,8 @@ function DiseaseDetection() {
 
     const deviceId = "ESP32-003";
 
+    const [selectedCrop, setSelectedCrop] = useState("Tomato");
+
     // Fast client-side image optimizer to speed up mobile/camera uploads
     const compressImage = (file) => {
         return new Promise((resolve) => {
@@ -93,7 +95,11 @@ function DiseaseDetection() {
                 ]);
 
                 if (farmRes.status === "fulfilled" && farmRes.value?.farms?.length > 0) {
-                    setFarm(farmRes.value.farms[0]);
+                    const loadedFarm = farmRes.value.farms[0];
+                    setFarm(loadedFarm);
+                    if (loadedFarm.crop) {
+                        setSelectedCrop(loadedFarm.crop);
+                    }
                 } else {
                     setError("No farm found. Please add a farm first.");
                 }
@@ -168,7 +174,7 @@ function DiseaseDetection() {
             data.append("image", uploadFile);
 
             data.append("farmId", farm._id);
-            data.append("crop", farm.crop);
+            data.append("crop", selectedCrop || farm.crop || "Tomato");
 
             data.append(
                 "temperature",
@@ -276,6 +282,35 @@ function DiseaseDetection() {
                                 </p>
                             )}
 
+                        </div>
+
+                        <div className="crop-select-section" style={{ marginBottom: "20px", padding: "14px 18px", background: "#f6faf6", borderRadius: "10px", border: "1px solid #d3e7d6" }}>
+                            <label style={{ display: "block", marginBottom: "8px", fontWeight: "700", color: "#1f5132", fontSize: "14px" }}>
+                                🌿 Crop Being Analyzed
+                            </label>
+                            <select
+                                value={selectedCrop}
+                                onChange={(e) => setSelectedCrop(e.target.value)}
+                                style={{
+                                    width: "100%",
+                                    padding: "10px 14px",
+                                    borderRadius: "8px",
+                                    border: "1.5px solid #2e7d32",
+                                    fontSize: "15px",
+                                    fontWeight: "600",
+                                    color: "#1f5132",
+                                    backgroundColor: "#ffffff",
+                                    cursor: "pointer",
+                                    outline: "none"
+                                }}
+                            >
+                                <option value="Tomato">🍅 Tomato</option>
+                                <option value="Potato">🥔 Potato</option>
+                                <option value="Onion">🧅 Onion</option>
+                            </select>
+                            <small style={{ display: "block", marginTop: "6px", color: "#66736a", fontSize: "12px" }}>
+                                Defaulted to your farm's crop ({farm?.crop || "Tomato"}). Change if analyzing a different leaf image.
+                            </small>
                         </div>
 
                         <div className="sensor-input-grid">
